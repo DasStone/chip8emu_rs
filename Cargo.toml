@@ -1,0 +1,12 @@
+[package]
+name = "chip8emu_rs"
+version = "0.1.0"
+authors = ["Adrian Stein <adrian.stein@tum.de>"]
+edition = "2018"
+description = "Chip8 emulator"
+license = "MIT"
+keywords = ["chip8", "emulator", "emulation"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
