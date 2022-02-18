@@ -21,11 +21,11 @@ impl Timer {
         }
 
         if self.sound_timer > 0 {
-            self.sound_timer -= 1;
-        }
+            if self.sound_timer == 1 {
+                (self.sound_handler)();
+            }
 
-        if self.sound_timer == 0 {
-            (self.sound_handler)();
+            self.sound_timer -= 1;
         }
     }
 }
