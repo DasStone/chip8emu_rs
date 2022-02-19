@@ -14,13 +14,18 @@ fn main() {
     cpu.cycle();
     cpu.cycle();
 
-    let mem = memory::Memory::new(&vec![4u8; 100]);
-    let oof = mem.memory[3];
+    let mem = memory::Memory::new(&vec![4u8; 100]).expect("rip");
+    
 
-    let sound = get_sound_handler(SoundMode::Print);
+    let sound = get_sound_handler(SoundMode::On);
     let mut timer = Timer::new(sound);
 
     timer.sound_timer = 5;
+    timer.update();
+    timer.update();
+    timer.update();
+    timer.update();
+    timer.update();
 
 
     println!("-----------");

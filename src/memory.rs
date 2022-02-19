@@ -27,15 +27,15 @@ pub struct Memory {
 }
 
 impl Memory {
-    pub fn new(program: &Vec<u8>) -> Memory{
+    pub fn new(program: &Vec<u8>) -> Result<Memory, &'static str>{
         let mut tmp = vec![0u8; MEMORY_SIZE].into_boxed_slice();
 
         load_fontset(&mut tmp);
-        load_program(&mut tmp, program);
+        load_program(&mut tmp, program)?;
 
-        Memory {
+        Ok(Memory {
             memory: tmp,
-        }
+        })
     }
 }
 
@@ -43,7 +43,13 @@ fn load_fontset(memory: &mut Box<[u8]>) {
     memory[FONTSET_ADDRESS..(FONTSET_ADDRESS+80)].copy_from_slice(&FONT_SET);
 }
 
-fn load_program(memory: &mut Box<[u8]>, program: &Vec<u8>) {
-    let program_length = program.len();
-    memory[PROGRAM_START..(PROGRAM_START+program_length)].copy_from_slice(program);
+fn load_program(memory: &mut Box<[u8]>, program: &Vec<u8>) -> Result<(), &'static str> {
+    let last_address = PROGRAM_START + program.len();
+
+    if last_address >= MEMORY_SIZE {
+        return Err("Program cannot be stored");
+    }
+
+    memory[PROGRAM_START..last_address].copy_from_slice(program);
+    Ok(())
 }

@@ -1,3 +1,6 @@
+use std::{error::Error, fs};
+
+use crate::memory::Memory;
 
 pub mod display {
     pub struct Display {
@@ -15,4 +18,12 @@ pub mod display {
             self.buffer.fill(0x0);
         }
     }
+}
+
+pub fn emulate_chip8(program_file: &str) -> Result<(), Box<dyn Error>> {
+    // Initialize System
+    let program = fs::read(program_file)?;
+    let memory = Memory::new(&program)?;
+
+    Ok(())
 }

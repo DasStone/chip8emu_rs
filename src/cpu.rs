@@ -33,15 +33,26 @@ impl Cpu {
         // fetch instruction
         // decode instruction
         decode(0x00E0);
+        self.fetch();
         // execute instuction
+    }
+
+    fn fetch(&mut self) {
+
     }
 }
 
-fn fetch() {}
+//fn fetch() {}
+
+fn i1nnn() {}
+
+// fn decode2(&memory) -> impl FnMut () -> () {
+//     || i1nnn(memory)
+// }
 
 fn decode(op_code: u16) -> Instruction {
-    let vx = (op_code & 0x0F00) as usize;
-    let vy = (op_code & 0x00F0) as usize;
+    let vx = ((op_code & 0x0F00) >> 8) as usize;
+    let vy = ((op_code & 0x00F0) >> 4) as usize;
     let tribble = (op_code & 0x0FFF) as u16;
     let byte = (op_code & 0x00FF) as u8;
     let nibble = (op_code & 0x000F) as u8;
@@ -97,8 +108,44 @@ fn decode(op_code: u16) -> Instruction {
     }
 }
 
-fn execute() {
-
+fn execute(instruction: Instruction) {
+    match instruction {
+        Instruction::I00E0() => todo!(),
+        Instruction::I00EE() => todo!(),
+        Instruction::I0NNN(_) => todo!(),
+        Instruction::I1NNN(_) => todo!(),
+        Instruction::I2NNN(_) => todo!(),
+        Instruction::I3XKK(_, _) => todo!(),
+        Instruction::I4XKK(_, _) => todo!(),
+        Instruction::I5XY0(_, _) => todo!(),
+        Instruction::I6XKK(_, _) => todo!(),
+        Instruction::I7XKK(_, _) => todo!(),
+        Instruction::I8XY0(_, _) => todo!(),
+        Instruction::I8XY1(_, _) => todo!(),
+        Instruction::I8XY2(_, _) => todo!(),
+        Instruction::I8XY3(_, _) => todo!(),
+        Instruction::I8XY4(_, _) => todo!(),
+        Instruction::I8XY5(_, _) => todo!(),
+        Instruction::I8XY6(_, _) => todo!(),
+        Instruction::I8XY7(_, _) => todo!(),
+        Instruction::I8XYE(_, _) => todo!(),
+        Instruction::I9XY0(_, _) => todo!(),
+        Instruction::IANNN(_) => todo!(),
+        Instruction::IBNNN(_) => todo!(),
+        Instruction::ICXKK(_, _) => todo!(),
+        Instruction::IDXYN(_, _, _) => todo!(),
+        Instruction::IEX9E(_) => todo!(),
+        Instruction::IEXA1(_) => todo!(),
+        Instruction::IFX07(_) => todo!(),
+        Instruction::IFX0A(_) => todo!(),
+        Instruction::IFX15(_) => todo!(),
+        Instruction::IFX18(_) => todo!(),
+        Instruction::IFX1E(_) => todo!(),
+        Instruction::IFX29(_) => todo!(),
+        Instruction::IFX33(_) => todo!(),
+        Instruction::IFX55(_) => todo!(),
+        Instruction::IFX65(_) => todo!(),
+    };
 }
 
 enum Instruction {
