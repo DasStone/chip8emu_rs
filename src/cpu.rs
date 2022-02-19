@@ -1,5 +1,3 @@
-use core::panic;
-
 use crate::{memory::{PROGRAM_START, Memory}, timer::Timer};
 
 #[derive(Clone)]
