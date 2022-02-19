@@ -23,7 +23,7 @@ const FONT_SET: [u8; 80] = [
 
 #[derive(Clone)]
 pub struct Memory {
-    pub memory: Box<[u8]>,
+    pub mem: Box<[u8]>,
 }
 
 impl Memory {
@@ -34,22 +34,22 @@ impl Memory {
         load_program(&mut tmp, program)?;
 
         Ok(Memory {
-            memory: tmp,
+            mem: tmp,
         })
     }
 }
 
-fn load_fontset(memory: &mut Box<[u8]>) {
-    memory[FONTSET_ADDRESS..(FONTSET_ADDRESS+80)].copy_from_slice(&FONT_SET);
+fn load_fontset(mem: &mut Box<[u8]>) {
+    mem[FONTSET_ADDRESS..(FONTSET_ADDRESS+80)].copy_from_slice(&FONT_SET);
 }
 
-fn load_program(memory: &mut Box<[u8]>, program: &Vec<u8>) -> Result<(), &'static str> {
+fn load_program(mem: &mut Box<[u8]>, program: &Vec<u8>) -> Result<(), &'static str> {
     let last_address = PROGRAM_START + program.len();
 
     if last_address >= MEMORY_SIZE {
         return Err("Program cannot be stored");
     }
 
-    memory[PROGRAM_START..last_address].copy_from_slice(program);
+    mem[PROGRAM_START..last_address].copy_from_slice(program);
     Ok(())
 }
