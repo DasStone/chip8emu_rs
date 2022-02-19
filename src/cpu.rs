@@ -1,4 +1,4 @@
-use crate::{memory::{PROGRAM_START, Memory}, timer::Timer};
+use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer};
 
 #[derive(Clone)]
 pub struct Cpu {
@@ -199,12 +199,29 @@ impl Cpu {
         self.i = self.i + (self.v[x] as u16);
     }
 
-    fn op_fx29(&mut self, x: usize) {}
+    fn op_fx29(&mut self, x: usize) {
+        let nibble = (self.v[x] & 0x0F) as u16;
+        self.i = (FONTSET_ADDRESS as u16) + 5 * nibble;
+    }
 
-    fn op_fx33(&mut self, x: usize) {}
+    fn op_fx33(&mut self, x: usize) {
+        let tmp = self.v[x];
+        self.memory.mem[self.i as usize + 0] = tmp / 100;
+        self.memory.mem[self.i as usize + 1] = (tmp / 10) % 10;
+        self.memory.mem[self.i as usize + 2] = tmp % 10;
+        
+    }
 
-    fn op_fx55(&mut self, x: usize) {}
+    fn op_fx55(&mut self, x: usize) {
+        for n in 0..(x+1) {
+            self.memory.mem[(self.i as usize) + n] = self.v[n];
+        }
+    }
 
-    fn op_fx65(&mut self, x: usize) {}
+    fn op_fx65(&mut self, x: usize) {
+        for n in 0..(x+1) {
+            self.v[n] = self.memory.mem[(self.i as usize) + n];
+        }
+    }
 }
 
