@@ -50,8 +50,8 @@ impl Cpu {
     }
 
     fn decode_and_execute(&mut self, op_code: u16) -> Result<(), String>{
-        let vx = ((op_code & 0x0F00) >> 8) as usize;
-        let vy = ((op_code & 0x00F0) >> 4) as usize;
+        let x = ((op_code & 0x0F00) >> 8) as usize;
+        let y = ((op_code & 0x00F0) >> 4) as usize;
         let nnn = (op_code & 0x0FFF) as u16;
         let kk = (op_code & 0x00FF) as u8;
         let n = (op_code & 0x000F) as u8;
@@ -60,49 +60,49 @@ impl Cpu {
 
         match op_code & 0xF000 {
             0x0000 => match op_code {
-                0x00E0 => op_00e0(self),
-                0x00EE => op_00ee(),
+                0x00E0 => self.op_00e0(),
+                0x00EE => self.op_00ee(),
                 _ => unrecognized = true,
             },
-            0x1000 => op_1nnn(nnn),
-            0x2000 => op_2nnn(nnn),
-            0x3000 => op_3xkk(vx, kk),
-            0x4000 => op_4xkk(vx, kk),
-            0x5000 => op_5xy0(vx, vy),
-            0x6000 => op_6xkk(vx, kk),
-            0x7000 => op_7xkk(vx, kk),
+            0x1000 => self.op_1nnn(nnn),
+            0x2000 => self.op_2nnn(nnn),
+            0x3000 => self.op_3xkk(x, kk),
+            0x4000 => self.op_4xkk(x, kk),
+            0x5000 => self.op_5xy0(x, y),
+            0x6000 => self.op_6xkk(x, kk),
+            0x7000 => self.op_7xkk(x, kk),
             0x8000 => match op_code & 0x000F {
-                0x0 => op_8xy0(vx, vy),
-                0x1 => op_8xy1(vx, vy),
-                0x2 => op_8xy2(vx, vy),
-                0x3 => op_8xy3(vx, vy),
-                0x4 => op_8xy4(vx, vy),
-                0x5 => op_8xy5(vx, vy),
-                0x6 => op_8xy6(vx, vy),
-                0x7 => op_8xy7(vx, vy),
-                0xE => op_8xye(vx, vy),
+                0x0 => self.op_8xy0(x, y),
+                0x1 => self.op_8xy1(x, y),
+                0x2 => self.op_8xy2(x, y),
+                0x3 => self.op_8xy3(x, y),
+                0x4 => self.op_8xy4(x, y),
+                0x5 => self.op_8xy5(x, y),
+                0x6 => self.op_8xy6(x, y),
+                0x7 => self.op_8xy7(x, y),
+                0xE => self.op_8xye(x, y),
                 _ => unrecognized = true,
             },
-            0x9000 => op_9xy0(vx, vy),
-            0xA000 => op_annn(nnn),
-            0xB000 => op_bnnn(nnn),
-            0xC000 => op_cxkk(vx, kk),
-            0xD000 => op_dxyn(vx, vy, n),
+            0x9000 => self.op_9xy0(x, y),
+            0xA000 => self.op_annn(nnn),
+            0xB000 => self.op_bnnn(nnn),
+            0xC000 => self.op_cxkk(x, kk),
+            0xD000 => self.op_dxyn(x, y, n),
             0xE000 => match op_code & 0x00FF {
-                0x9E => op_ex9e(vx),
-                0xA1 => op_exa1(vx),
+                0x9E => self.op_ex9e(x),
+                0xA1 => self.op_exa1(x),
                 _ => unrecognized = true,
             }
             0xF000 => match op_code & 0x00FF {
-                0x07 => op_fx07(vx),
-                0x0A => op_fx0a(vx),
-                0x15 => op_fx15(vx),
-                0x18 => op_fx18(vx),
-                0x1E => op_fx1e(vx),
-                0x29 => op_fx29(vx),
-                0x33 => op_fx33(vx),
-                0x55 => op_fx55(vx),
-                0x65 => op_fx65(vx),
+                0x07 => self.op_fx07(x),
+                0x0A => self.op_fx0a(x),
+                0x15 => self.op_fx15(x),
+                0x18 => self.op_fx18(x),
+                0x1E => self.op_fx1e(x),
+                0x29 => self.op_fx29(x),
+                0x33 => self.op_fx33(x),
+                0x55 => self.op_fx55(x),
+                0x65 => self.op_fx65(x),
                 _ => unrecognized = true,
             }
             _ => unrecognized = true,
@@ -114,95 +114,99 @@ impl Cpu {
 
         Ok(())
     }
+
+    fn op_00e0(&mut self) {}
+
+    fn op_00ee(&mut self) {}
+
+    fn op_0nnn(&mut self, nnn: u16) {}
+
+    fn op_1nnn(&mut self, nnn: u16) {
+        self.pc = nnn;
+    }
+
+    fn op_2nnn(&mut self, nnn: u16) {}
+
+    fn op_3xkk(&mut self, x: usize, kk: u8) {}
+
+    fn op_4xkk(&mut self, x: usize, kk: u8) {}
+
+    fn op_5xy0(&mut self, x: usize, y: usize) {}
+
+    fn op_6xkk(&mut self, x: usize, kk: u8) {
+        self.v[x] = kk;
+    }
+
+    fn op_7xkk(&mut self, x: usize, kk: u8) {}
+
+    fn op_8xy0(&mut self, x: usize, y: usize) {
+        self.v[x] = self.v[y];
+    }
+
+    fn op_8xy1(&mut self, x: usize, y: usize) {
+        self.v[x] = self.v[x] | self.v[y];
+    }
+
+    fn op_8xy2(&mut self, x: usize, y: usize) {
+        self.v[x] = self.v[x] & self.v[y];
+    }
+
+    fn op_8xy3(&mut self, x: usize, y: usize) {
+        self.v[x] = self.v[x] ^ self.v[y];
+    }
+
+    fn op_8xy4(&mut self, x: usize, y: usize) {}
+
+    fn op_8xy5(&mut self, x: usize, y: usize) {}
+
+    fn op_8xy6(&mut self, x: usize, y: usize) {}
+
+    fn op_8xy7(&mut self, x: usize, y: usize) {}
+
+    fn op_8xye(&mut self, x: usize, y: usize) {}
+
+    fn op_9xy0(&mut self, x: usize, y: usize) {}
+
+    fn op_annn(&mut self, nnn: u16) {
+        self.i = nnn;
+    }
+
+    fn op_bnnn(&mut self, nnn: u16) {
+        self.pc = nnn + (self.v[0] as u16);
+    }
+
+    fn op_cxkk(&mut self, x: usize, kk: u8) {}
+
+    fn op_dxyn(&mut self, x: usize, y: usize, n: u8) {}
+
+    fn op_ex9e(&mut self, x: usize) {}
+
+    fn op_exa1(&mut self, x: usize) {}
+
+    fn op_fx07(&mut self, x: usize) {
+        self.v[x] = self.timer.delay_timer;
+    }
+
+    fn op_fx0a(&mut self, x: usize) {}
+
+    fn op_fx15(&mut self, x: usize) {
+        self.timer.delay_timer = self.v[x];
+    }
+
+    fn op_fx18(&mut self, x: usize) {
+        self.timer.sound_timer = self.v[x];
+    }
+
+    fn op_fx1e(&mut self, x: usize) {
+        self.i = self.i + (self.v[x] as u16);
+    }
+
+    fn op_fx29(&mut self, x: usize) {}
+
+    fn op_fx33(&mut self, x: usize) {}
+
+    fn op_fx55(&mut self, x: usize) {}
+
+    fn op_fx65(&mut self, x: usize) {}
 }
-
-fn fetch() {}
-
-fn i1nnn() {}
-
-fn decode2() -> impl FnMut () -> () {
-     || op_1nnn(0xFFF)
-}
-
-
-// 00E0 - CLS
-// Clear the display
-fn op_00e0(cpu: &mut Cpu) {
-    cpu.memory.mem[0] = 69;
-}
-
-// Return from a subroutine
-fn op_00ee() {}
-
-// (panic!) Jump to machine code routine at NNN
-fn _op_0nnn(nnn: u16) {}
-
-// Jump to location NNN
-fn op_1nnn(nnn: u16) {
-    println!("oof");
-}
-
-// Call subroutine at NNN
-fn op_2nnn(nnn: u16) {}
-
-// Skip next instuction if VX = KK
-fn op_3xkk(vx: usize, kk: u8) {}
-
-// Skip next instruction if VX != KK
-fn op_4xkk(vx: usize, kk: u8) {}
-
-// Skip next instuction if VX = VY
-fn op_5xy0(vx: usize, vy: usize) {}
-
-// (LD) Set VX = KK
-fn op_6xkk(vx: usize, kk: u8) {}
-
-// (ADD) Set VX = KK
-fn op_7xkk(vx: usize, kk: u8) {}
-
-// (LD) Set VX = VY
-fn op_8xy0(vx: usize, vy: usize) {}
-
-// (OR) Set VX = VX OR VY
-fn op_8xy1(vx: usize, vy: usize) {}
-
-// (AND) Set VX = VX AND VY
-fn op_8xy2(vx: usize, vy: usize) {}
-
-// (XOR) Set VX = VX XOR VY
-fn op_8xy3(vx: usize, vy: usize) {}
-
-// (ADD) Set VX = VX + VY, set VF = carry
-// If VX + VY is greater than 8 bits, then set VF to 1, otherwise 0. Keep lowest 8 bit as result.
-fn op_8xy4(vx: usize, vy: usize) {}
-
-// (SUB) Set VX = VX - VY, set VF = NOT borrow
-// If VX > VY, then set VF to 1, otherwise 0. Subtract afterwards.
-fn op_8xy5(vx: usize, vy: usize) {}
-
-// (SHR) Set VX = VX SHR 1
-// If the least-significant bit of VX is 1, then  set VF to 1, otherwise 0. Shift afterwards.
-fn op_8xy6(vx: usize, vy: usize) {}
-
-// (SUBN) Set VX = VY - VX, set VF = NOT borrow
-// If VY > VX, then set VF to 1, otherwise 0. Subtract afterwards.
-fn op_8xy7(vx: usize, vy: usize) {}
-
-fn op_8xye(vx: usize, vy: usize) {}
-fn op_9xy0(vx: usize, vy: usize) {}
-fn op_annn(nnn: u16) {}
-fn op_bnnn(nnn: u16) {}
-fn op_cxkk(vx: usize, kk: u8) {}
-fn op_dxyn(vx: usize, vy: usize, n: u8) {}
-fn op_ex9e(vx: usize) {}
-fn op_exa1(vx: usize) {}
-fn op_fx07(vx: usize) {}
-fn op_fx0a(vx: usize) {}
-fn op_fx15(vx: usize) {}
-fn op_fx18(vx: usize) {}
-fn op_fx1e(vx: usize) {}
-fn op_fx29(vx: usize) {}
-fn op_fx33(vx: usize) {}
-fn op_fx55(vx: usize) {}
-fn op_fx65(vx: usize) {}
 
