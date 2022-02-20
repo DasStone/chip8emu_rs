@@ -1,4 +1,6 @@
-use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer};
+use rand::{prelude::ThreadRng, Rng};
+
+use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer, rng::RandomByte};
 
 #[derive(Clone)]
 pub struct Cpu {
@@ -11,11 +13,12 @@ pub struct Cpu {
 
     memory: Memory,
     timer: Timer,
+    rng: RandomByte,
 
 }
 
 impl Cpu {
-    pub fn new(memory: Memory, timer: Timer) -> Cpu {
+    pub fn new(memory: Memory, timer: Timer, rng: RandomByte) -> Cpu {
         Cpu {
             i: 0x0,
             pc: PROGRAM_START as u16,
@@ -23,8 +26,11 @@ impl Cpu {
             sp: 0,
             stack: [0x0; 16],
             v: [0x0; 16],
+
             memory: memory,
             timer: timer,
+
+            rng: rng
         }
     }
 
@@ -135,7 +141,10 @@ impl Cpu {
         self.v[x] = kk;
     }
 
-    fn op_7xkk(&mut self, x: usize, kk: u8) {}
+    fn op_7xkk(&mut self, x: usize, kk: u8) {
+        let (res, _) = self.v[x].overflowing_add(kk);
+        self.v[x] = res;
+    }
 
     fn op_8xy0(&mut self, x: usize, y: usize) {
         self.v[x] = self.v[y];
@@ -153,15 +162,33 @@ impl Cpu {
         self.v[x] = self.v[x] ^ self.v[y];
     }
 
-    fn op_8xy4(&mut self, x: usize, y: usize) {}
+    fn op_8xy4(&mut self, x: usize, y: usize) {
+        let (res, carry) = self.v[x].overflowing_add(self.v[y]);
+        self.v[x] = res;
+        self.v[0xF] = u8::from(carry);
+    }
 
-    fn op_8xy5(&mut self, x: usize, y: usize) {}
+    fn op_8xy5(&mut self, x: usize, y: usize) {
+        self.v[0xF] = if self.v[x] > self.v[y] { 1 } else { 0 };
+        let (res, _) = self.v[x].overflowing_sub(self.v[y]);
+        self.v[x] = res;
+    }
 
-    fn op_8xy6(&mut self, x: usize, y: usize) {}
+    fn op_8xy6(&mut self, x: usize, _y: usize) {
+        self.v[0xF] = self.v[x] & 0b00000001;
+        self.v[x] >>= 1;
+    }
 
-    fn op_8xy7(&mut self, x: usize, y: usize) {}
+    fn op_8xy7(&mut self, x: usize, y: usize) {
+        self.v[0xF] = if self.v[y] > self.v[x] { 1 } else { 0 };
+        let (res, _) = self.v[y].overflowing_sub(self.v[x]);
+        self.v[x] = res;
+    }
 
-    fn op_8xye(&mut self, x: usize, y: usize) {}
+    fn op_8xye(&mut self, x: usize, _y: usize) {
+        self.v[0xF] = (self.v[x] & 0b10000000) >> 7;
+        self.v[x] <<= 1;
+    }
 
     fn op_9xy0(&mut self, x: usize, y: usize) {}
 
@@ -173,7 +200,9 @@ impl Cpu {
         self.pc = nnn + (self.v[0] as u16);
     }
 
-    fn op_cxkk(&mut self, x: usize, kk: u8) {}
+    fn op_cxkk(&mut self, x: usize, kk: u8) {
+        self.v[x] = self.rng.sample() & kk;
+    }
 
     fn op_dxyn(&mut self, x: usize, y: usize, n: u8) {}
 
