@@ -1,5 +1,3 @@
-use rand::{prelude::ThreadRng, Rng};
-
 use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer, rng::RandomByte};
 
 #[derive(Clone)]
@@ -121,15 +119,22 @@ impl Cpu {
 
     fn op_00e0(&mut self) {}
 
-    fn op_00ee(&mut self) {}
+    fn op_00ee(&mut self) {
+        self.sp -= 1;
+        self.pc = self.stack[self.sp as usize];
+    }
 
-    fn op_0nnn(&mut self, nnn: u16) {}
+    fn _op_0nnn(&mut self, _nnn: u16) {}
 
     fn op_1nnn(&mut self, nnn: u16) {
         self.pc = nnn;
     }
 
-    fn op_2nnn(&mut self, nnn: u16) {}
+    fn op_2nnn(&mut self, nnn: u16) {
+        self.stack[self.sp as usize] = self.pc + 2;
+        self.sp += 1;
+        self.pc = nnn;
+    }
 
     fn op_3xkk(&mut self, x: usize, kk: u8) {}
 
