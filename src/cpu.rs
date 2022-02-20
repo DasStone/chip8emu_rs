@@ -1,4 +1,4 @@
-use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer, rng::RandomByte};
+use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer, rng::RandomByte, display::Display};
 
 #[derive(Clone)]
 pub struct Cpu {
@@ -11,12 +11,14 @@ pub struct Cpu {
 
     memory: Memory,
     timer: Timer,
+    display: Display,
+
     rng: RandomByte,
 
 }
 
 impl Cpu {
-    pub fn new(memory: Memory, timer: Timer, rng: RandomByte) -> Cpu {
+    pub fn new(memory: Memory, timer: Timer, display: Display, rng: RandomByte) -> Cpu {
         Cpu {
             i: 0x0,
             pc: PROGRAM_START as u16,
@@ -27,6 +29,7 @@ impl Cpu {
 
             memory: memory,
             timer: timer,
+            display: display,
 
             rng: rng
         }
@@ -43,10 +46,13 @@ impl Cpu {
         Ok(())
     }
 
-    fn fetch(&self) -> u16 {
+    fn fetch(&mut self) -> u16 {
         let pc = self.pc as usize;
         let first_byte = self.memory.mem[pc] as u16;
         let second_byte = self.memory.mem[pc + 1] as u16;
+
+        // increment program counter, doing this here avoids duplication later on
+        self.pc += 2;
         
         first_byte << 8 | second_byte
     }
@@ -117,7 +123,9 @@ impl Cpu {
         Ok(())
     }
 
-    fn op_00e0(&mut self) {}
+    fn op_00e0(&mut self) {
+        self.display.clear();
+    }
 
     fn op_00ee(&mut self) {
         self.sp -= 1;
@@ -136,11 +144,23 @@ impl Cpu {
         self.pc = nnn;
     }
 
-    fn op_3xkk(&mut self, x: usize, kk: u8) {}
+    fn op_3xkk(&mut self, x: usize, kk: u8) {
+        if self.v[x] == kk {
+            self.pc += 2;
+        }
+    }
 
-    fn op_4xkk(&mut self, x: usize, kk: u8) {}
+    fn op_4xkk(&mut self, x: usize, kk: u8) {
+        if self.v[x] != kk {
+            self.pc += 2;
+        }
+    }
 
-    fn op_5xy0(&mut self, x: usize, y: usize) {}
+    fn op_5xy0(&mut self, x: usize, y: usize) {
+        if self.v[x] == self.v[y] {
+            self.pc += 2;
+        }
+    }
 
     fn op_6xkk(&mut self, x: usize, kk: u8) {
         self.v[x] = kk;
@@ -195,7 +215,11 @@ impl Cpu {
         self.v[x] <<= 1;
     }
 
-    fn op_9xy0(&mut self, x: usize, y: usize) {}
+    fn op_9xy0(&mut self, x: usize, y: usize) {
+        if self.v[x] != self.v[y] {
+            self.pc += 2;
+        }
+    }
 
     fn op_annn(&mut self, nnn: u16) {
         self.i = nnn;
