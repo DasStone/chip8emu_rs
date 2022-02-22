@@ -46,6 +46,11 @@ impl Cpu {
         Ok(())
     }
 
+    pub fn debug_print(&mut self) {
+        self.display.debug_print_buffer();
+    }
+
+
     fn fetch(&mut self) -> u16 {
         let pc = self.pc as usize;
         let first_byte = self.memory.mem[pc] as u16;
@@ -233,7 +238,15 @@ impl Cpu {
         self.v[x] = self.rng.sample() & kk;
     }
 
-    fn op_dxyn(&mut self, x: usize, y: usize, n: u8) {}
+    fn op_dxyn(&mut self, x: usize, y: usize, n: u8) {
+        let (x, mut y) = Display::normalize_coordinates(self.v[x], self.v[y]);
+        self.v[0xF] = 0;
+
+        for i in 0..n {
+            self.v[0xF] |= self.display.draw_byte_no_wrap(x, y, self.memory.mem[self.i as usize + i as usize]);
+            y += 1;
+        }
+    }
 
     fn op_ex9e(&mut self, x: usize) {}
 
