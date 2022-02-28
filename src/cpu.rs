@@ -1,10 +1,14 @@
 use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer, rng::RandomByte, display::Display};
 
 #[derive(Clone)]
+pub struct EmulatorState {
+    beep: bool,
+}
+
+#[derive(Clone)]
 pub struct Cpu {
     i: u16,
     pc: u16,
-    opcode: u16,
     sp: u16,
     stack: [u16; 16],
     v: [u8; 16],
@@ -22,7 +26,6 @@ impl Cpu {
         Cpu {
             i: 0x0,
             pc: PROGRAM_START as u16,
-            opcode: 0x0,
             sp: 0,
             stack: [0x0; 16],
             v: [0x0; 16],
@@ -35,15 +38,19 @@ impl Cpu {
         }
     }
 
-    pub fn cycle(&mut self) -> Result<(), String>{
+    pub fn cycle(&mut self) -> Result<EmulatorState, String>{
         // fetch, decode and execute instruction
         let op_code= self.fetch();
         self.decode_and_execute(op_code)?;
 
         // update timers
-        self.timer.update();
+        let beep = self.timer.update();
 
-        Ok(())
+        Ok(
+            EmulatorState {
+                beep: beep,
+            }
+        )
     }
 
     pub fn debug_print(&mut self) {
@@ -246,6 +253,8 @@ impl Cpu {
             self.v[0xF] |= self.display.draw_byte_no_wrap(x, y, self.memory.mem[self.i as usize + i as usize]);
             y += 1;
         }
+
+        self.display.draw_flag = true;
     }
 
     fn op_ex9e(&mut self, x: usize) {}

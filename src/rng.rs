@@ -10,6 +10,7 @@ impl RandomByte {
     pub fn new() -> RandomByte {
         RandomByte {
             rng: rand::thread_rng(),
+            // oof, this can't produce 255
             side: Uniform::new(0, 255),
         }
     }

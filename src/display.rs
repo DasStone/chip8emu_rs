@@ -1,14 +1,15 @@
 const SCREEN_WIDTH: usize = 64;
 const SCREEN_HEIGHT: usize = 32;
 
-fn index(x: usize, y: usize) -> usize {
+#[inline]
+fn idx(x: usize, y: usize) -> usize {
     y * SCREEN_WIDTH + x
 }
 
 #[derive(Clone)]
 pub struct Display {
     buffer: [u8; SCREEN_WIDTH * SCREEN_HEIGHT],
-    draw_flag: bool,
+    pub draw_flag: bool,
 }
 
 impl Display {
@@ -42,8 +43,8 @@ impl Display {
             }
 
             let pixel = (byte & mask) >> (7 - n);
-            let draw = self.buffer[index(x, y)] ^ pixel;
-            self.buffer[index(x, y)] = draw;
+            let draw = self.buffer[idx(x, y)] ^ pixel;
+            self.buffer[idx(x, y)] = draw;
 
             vf |= draw;
             x += 1;
@@ -53,10 +54,10 @@ impl Display {
         vf
     }
 
-    pub fn debug_print_buffer(&mut self) {
+    pub fn debug_print_buffer(&self) {
         for y in 0..SCREEN_HEIGHT {
             for x in 0..SCREEN_WIDTH {
-                print!("{}", if self.buffer[index(x, y)] == 1 { '@' } else { ' ' });
+                print!("{}", if self.buffer[idx(x, y)] == 1 { '@' } else { ' ' });
             }
             println!("");
         }
