@@ -8,14 +8,16 @@ fn idx(x: usize, y: usize) -> usize {
 
 #[derive(Clone)]
 pub struct Display {
-    buffer: [u8; SCREEN_WIDTH * SCREEN_HEIGHT],
+    pub buffer: Box<[u8]>,
     pub draw_flag: bool,
 }
 
 impl Display {
     pub fn new() -> Display {
+        let tmp = vec![0u8; SCREEN_WIDTH * SCREEN_HEIGHT].into_boxed_slice();
+
         Display {
-            buffer: [0x0; SCREEN_WIDTH * SCREEN_HEIGHT],
+            buffer: tmp,
             draw_flag: true,
         }
     }

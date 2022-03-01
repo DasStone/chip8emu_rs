@@ -1,8 +1,9 @@
 use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer, rng::RandomByte, display::Display, keypad::InputEvent};
 
 #[derive(Clone)]
-pub struct EmulatorState {
-    beep: bool,
+pub struct EmulatorState<'a> {
+    pub beep: bool,
+    pub draw: Option<&'a Box<[u8]>>
 }
 
 #[derive(Clone)]
@@ -37,7 +38,7 @@ impl Cpu {
         }
     }
 
-    pub fn cycle(&mut self, input: InputEvent) -> Result<EmulatorState, String>{
+    pub fn cycle<'a>(&'a mut self, input: InputEvent) -> Result<EmulatorState<'a>, String>{
         // fetch, decode and execute instruction
         let op_code= self.fetch();
         self.decode_and_execute(op_code, input)?;
@@ -45,9 +46,12 @@ impl Cpu {
         // update timers
         let beep = self.timer.update();
 
+        let draw = if self.display.draw_flag { Some(&self.display.buffer) } else { None };
+
         Ok(
             EmulatorState {
                 beep: beep,
+                draw: draw,
             }
         )
     }
@@ -283,7 +287,7 @@ impl Cpu {
         }
 
         match res {
-            None => self.pc -= 2,
+            None => self.pc -= 2, // potentially increment timers as well
             Some(val) => self.v[x] = val,
         }
     }

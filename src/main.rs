@@ -38,7 +38,11 @@ fn main() {
     let mut cpu = Cpu::new(mem, timer, display, rng);
 
     for n in 0..200 {
-        cpu.cycle(keypad.poll());
+        let state = cpu.cycle(keypad.poll()).expect("oof");
+        match state.draw {
+            None => println!("no draw"),
+            Some(pixels) => println!("{}", pixels[0]),
+        }
     }
 
     cpu.debug_print();
