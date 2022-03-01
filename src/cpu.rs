@@ -275,7 +275,7 @@ impl Cpu {
     fn op_fx0a(&mut self, x: usize, input: InputEvent) {
         let mut res = None;
 
-        for n in 0..=16 {
+        for n in 0x0..=0xF {
             if input.keypad_state[n] != 0 {
                 res = Some(n as u8);
                 break;
