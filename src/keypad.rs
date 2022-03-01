@@ -2,7 +2,7 @@ use sdl2::{EventPump, Sdl, keyboard::Keycode, event::Event};
 
 #[derive(Clone)]
 pub struct InputEvent {
-    quit: bool,
+    pub quit: bool,
     pub keypad_state: Box<[u8]>,
 }
 
@@ -54,7 +54,8 @@ impl Keypad {
                 Keycode::X => keypad_state[0xD] = 1,
                 Keycode::C => keypad_state[0xE] = 1,
                 Keycode::V => keypad_state[0xF] = 1,
-                _ => panic!(),
+                Keycode::Escape => quit = true,
+                _ => (),
             }
         }
 

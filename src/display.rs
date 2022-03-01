@@ -1,8 +1,8 @@
-const SCREEN_WIDTH: usize = 64;
-const SCREEN_HEIGHT: usize = 32;
+pub const SCREEN_WIDTH: usize = 64;
+pub const SCREEN_HEIGHT: usize = 32;
 
 #[inline]
-fn idx(x: usize, y: usize) -> usize {
+pub fn idx(x: usize, y: usize) -> usize {
     y * SCREEN_WIDTH + x
 }
 
