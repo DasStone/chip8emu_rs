@@ -1,4 +1,4 @@
-use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer, rng::RandomByte, display::Display};
+use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer, rng::RandomByte, display::Display, keypad::InputEvent};
 
 #[derive(Clone)]
 pub struct EmulatorState {
@@ -18,7 +18,6 @@ pub struct Cpu {
     display: Display,
 
     rng: RandomByte,
-
 }
 
 impl Cpu {
@@ -38,10 +37,10 @@ impl Cpu {
         }
     }
 
-    pub fn cycle(&mut self) -> Result<EmulatorState, String>{
+    pub fn cycle(&mut self, input: InputEvent) -> Result<EmulatorState, String>{
         // fetch, decode and execute instruction
         let op_code= self.fetch();
-        self.decode_and_execute(op_code)?;
+        self.decode_and_execute(op_code, input)?;
 
         // update timers
         let beep = self.timer.update();
@@ -69,7 +68,7 @@ impl Cpu {
         first_byte << 8 | second_byte
     }
 
-    fn decode_and_execute(&mut self, op_code: u16) -> Result<(), String>{
+    fn decode_and_execute(&mut self, op_code: u16, input: InputEvent) -> Result<(), String>{
         let x = ((op_code & 0x0F00) >> 8) as usize;
         let y = ((op_code & 0x00F0) >> 4) as usize;
         let nnn = (op_code & 0x0FFF) as u16;
@@ -109,13 +108,13 @@ impl Cpu {
             0xC000 => self.op_cxkk(x, kk),
             0xD000 => self.op_dxyn(x, y, n),
             0xE000 => match op_code & 0x00FF {
-                0x9E => self.op_ex9e(x),
-                0xA1 => self.op_exa1(x),
+                0x9E => self.op_ex9e(x, input),
+                0xA1 => self.op_exa1(x, input),
                 _ => unrecognized = true,
             }
             0xF000 => match op_code & 0x00FF {
                 0x07 => self.op_fx07(x),
-                0x0A => self.op_fx0a(x),
+                0x0A => self.op_fx0a(x, input),
                 0x15 => self.op_fx15(x),
                 0x18 => self.op_fx18(x),
                 0x1E => self.op_fx1e(x),
@@ -257,15 +256,37 @@ impl Cpu {
         self.display.draw_flag = true;
     }
 
-    fn op_ex9e(&mut self, x: usize) {}
+    fn op_ex9e(&mut self, x: usize, input: InputEvent) {
+        if input.keypad_state[self.v[x] as usize] != 0 {
+            self.pc += 2;
+        }
+    }
 
-    fn op_exa1(&mut self, x: usize) {}
+    fn op_exa1(&mut self, x: usize, input: InputEvent) {
+        if input.keypad_state[self.v[x] as usize] == 0 {
+            self.pc += 2;
+        }
+    }
 
     fn op_fx07(&mut self, x: usize) {
         self.v[x] = self.timer.delay_timer;
     }
 
-    fn op_fx0a(&mut self, x: usize) {}
+    fn op_fx0a(&mut self, x: usize, input: InputEvent) {
+        let mut res = None;
+
+        for n in 0..=16 {
+            if input.keypad_state[n] != 0 {
+                res = Some(n as u8);
+                break;
+            }
+        }
+
+        match res {
+            None => self.pc -= 2,
+            Some(val) => self.v[x] = val,
+        }
+    }
 
     fn op_fx15(&mut self, x: usize) {
         self.timer.delay_timer = self.v[x];

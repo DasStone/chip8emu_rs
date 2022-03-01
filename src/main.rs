@@ -5,6 +5,7 @@ mod sound;
 mod memory;
 mod rng;
 mod display;
+mod keypad;
 
 use cpu::Cpu;
 use timer::Timer;
@@ -18,19 +19,26 @@ use std::fs;
 use std::time::Duration;
 
 use crate::display::Display;
+use crate::keypad::Keypad;
 use crate::sound::SoundHandler;
 
 fn main() {
+    let sdl_context = sdl2::init().unwrap();
+
     //let program = fs::read("IBM Logo.ch8").expect("oof");
     let mem = memory::Memory::new(&vec![4u8; 100]).expect("rip");
     let timer = Timer::new();
     let rng = rng::RandomByte::new();
-    let display = Display::new(); 
+    let display = Display::new();
+
+    let mut keypad = Keypad::new(&sdl_context);
+
+    
 
     let mut cpu = Cpu::new(mem, timer, display, rng);
 
     for n in 0..200 {
-        cpu.cycle();
+        cpu.cycle(keypad.poll());
     }
 
     cpu.debug_print();
@@ -38,8 +46,6 @@ fn main() {
 
 
     println!("-----------");
-
-    let sdl_context = sdl2::init().unwrap();
 
     let sound = SoundHandler::new(&sdl_context, false);
 
@@ -59,40 +65,40 @@ fn main() {
 
 
 
-    // let video_subsystem = sdl_context.video().unwrap();
+    let video_subsystem = sdl_context.video().unwrap();
 
-    // let window = video_subsystem.window("chip8emu_rs", 800, 600)
-    //     .position_centered()
-    //     .resizable()
-    //     //.fullscreen()
-    //     .build()
-    //     .unwrap();
+    let window = video_subsystem.window("chip8emu_rs", 800, 600)
+        .position_centered()
+        .resizable()
+        //.fullscreen()
+        .build()
+        .unwrap();
 
-    // let mut canvas = window.into_canvas().build().unwrap();
+    let mut canvas = window.into_canvas().build().unwrap();
 
-    // canvas.set_draw_color(Color::RGB(0, 255, 255));
-    // canvas.clear();
-    // canvas.present();
-    // let mut event_pump = sdl_context.event_pump().unwrap();
-    // let mut i = 0;
-    // 'running: loop {
-    //     i = (i + 1) % 255;
-    //     canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
-    //     canvas.clear();
-    //     for event in event_pump.poll_iter() {
-    //         match event {
-    //             Event::Quit {..} |
-    //             Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-    //                 break 'running
-    //             },
-    //             _ => {}
-    //         }
-    //     }
-    //     // The rest of the game loop goes here...
+    canvas.set_draw_color(Color::RGB(0, 255, 255));
+    canvas.clear();
+    canvas.present();
+    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut i = 0;
+    'running: loop {
+        i = (i + 1) % 255;
+        canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
+        canvas.clear();
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit {..} |
+                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+                    break 'running
+                },
+                _ => {}
+            }
+        }
+        // The rest of the game loop goes here...
 
-    //     canvas.present();
-    //     ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
-    // }
+        canvas.present();
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+    }
 }
 
 
