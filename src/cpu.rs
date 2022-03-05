@@ -41,6 +41,7 @@ impl Cpu {
     pub fn cycle<'a>(&'a mut self, input: InputEvent) -> Result<EmulatorState<'a>, String>{
         // fetch, decode and execute instruction
         let op_code= self.fetch();
+
         self.decode_and_execute(op_code, input)?;
 
         // update timers
@@ -155,7 +156,7 @@ impl Cpu {
     }
 
     fn op_2nnn(&mut self, nnn: u16) {
-        self.stack[self.sp as usize] = self.pc + 2;
+        self.stack[self.sp as usize] = self.pc;
         self.sp += 1;
         self.pc = nnn;
     }
