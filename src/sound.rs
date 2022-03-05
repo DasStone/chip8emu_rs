@@ -1,7 +1,6 @@
 // https://docs.rs/sdl2/0.30.0/sdl2/audio/index.html
 
 use sdl2::{audio::{AudioDevice, AudioCallback, AudioSpecDesired}, Sdl};
-use std::time::Duration;
 
 struct SquareWave {
     phase_inc: f32,

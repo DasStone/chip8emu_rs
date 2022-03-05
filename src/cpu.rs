@@ -1,4 +1,4 @@
-use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer, rng::RandomByte, display::Display, keypad::InputEvent};
+use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer, rng::RandomByte, vmemory::VMemory, keypad::InputEvent};
 
 #[derive(Clone)]
 pub struct EmulatorState<'a> {
@@ -16,13 +16,13 @@ pub struct Cpu {
 
     memory: Memory,
     timer: Timer,
-    display: Display,
+    vmemory: VMemory,
 
     rng: RandomByte,
 }
 
 impl Cpu {
-    pub fn new(memory: Memory, timer: Timer, display: Display, rng: RandomByte) -> Cpu {
+    pub fn new(memory: Memory, timer: Timer, vmemory: VMemory, rng: RandomByte) -> Cpu {
         Cpu {
             i: 0x0,
             pc: PROGRAM_START as u16,
@@ -32,7 +32,7 @@ impl Cpu {
 
             memory: memory,
             timer: timer,
-            display: display,
+            vmemory: vmemory,
 
             rng: rng
         }
@@ -46,7 +46,8 @@ impl Cpu {
         // update timers
         let beep = self.timer.update();
 
-        let draw = if self.display.draw_flag { Some(&self.display.buffer) } else { None };
+        let draw = if self.vmemory.draw_flag { Some(&self.vmemory.buffer) } else { None };
+        self.vmemory.draw_flag = false;
 
         Ok(
             EmulatorState {
@@ -57,7 +58,7 @@ impl Cpu {
     }
 
     pub fn debug_print(&mut self) {
-        self.display.debug_print_buffer();
+        self.vmemory.debug_print_buffer();
     }
 
 
@@ -139,7 +140,7 @@ impl Cpu {
     }
 
     fn op_00e0(&mut self) {
-        self.display.clear();
+        self.vmemory.clear();
     }
 
     fn op_00ee(&mut self) {
@@ -210,7 +211,7 @@ impl Cpu {
 
     fn op_8xy5(&mut self, x: usize, y: usize) {
         self.v[0xF] = if self.v[x] > self.v[y] { 1 } else { 0 };
-        let (res, _) = self.v[x].overflowing_sub(self.v[y]);
+        let res = self.v[x].wrapping_sub(self.v[y]);
         self.v[x] = res;
     }
 
@@ -221,7 +222,7 @@ impl Cpu {
 
     fn op_8xy7(&mut self, x: usize, y: usize) {
         self.v[0xF] = if self.v[y] > self.v[x] { 1 } else { 0 };
-        let (res, _) = self.v[y].overflowing_sub(self.v[x]);
+        let res = self.v[y].wrapping_sub(self.v[x]);
         self.v[x] = res;
     }
 
@@ -249,15 +250,15 @@ impl Cpu {
     }
 
     fn op_dxyn(&mut self, x: usize, y: usize, n: u8) {
-        let (x, mut y) = Display::normalize_coordinates(self.v[x], self.v[y]);
+        let (xp, mut yp) = VMemory::normalize_coordinates(self.v[x], self.v[y]);
         self.v[0xF] = 0;
 
         for i in 0..n {
-            self.v[0xF] |= self.display.draw_byte_no_wrap(x, y, self.memory.mem[self.i as usize + i as usize]);
-            y += 1;
+            self.v[0xF] |= self.vmemory.draw_byte_no_wrap(xp, yp, self.memory.mem[self.i as usize + i as usize]);
+            yp += 1;
         }
 
-        self.display.draw_flag = true;
+        self.vmemory.draw_flag = true;
     }
 
     fn op_ex9e(&mut self, x: usize, input: InputEvent) {
@@ -287,7 +288,7 @@ impl Cpu {
         }
 
         match res {
-            None => self.pc -= 2, // potentially increment timers as well
+            None => {self.pc -= 2; self.timer.delay_timer += 1; self.timer.sound_timer += 1;},
             Some(val) => self.v[x] = val,
         }
     }
@@ -318,13 +319,13 @@ impl Cpu {
     }
 
     fn op_fx55(&mut self, x: usize) {
-        for n in 0..(x+1) {
+        for n in 0..=x {
             self.memory.mem[(self.i as usize) + n] = self.v[n];
         }
     }
 
     fn op_fx65(&mut self, x: usize) {
-        for n in 0..(x+1) {
+        for n in 0..=x {
             self.v[n] = self.memory.mem[(self.i as usize) + n];
         }
     }
