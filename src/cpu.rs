@@ -1,9 +1,15 @@
-use crate::{memory::{PROGRAM_START, Memory, FONTSET_ADDRESS}, timer::Timer, rng::RandomByte, vmemory::VMemory, keypad::InputEvent};
+use crate::{
+    input::InputEvent,
+    memory::{Memory, FONTSET_ADDRESS, PROGRAM_START},
+    rng::RandomByte,
+    timer::Timer,
+    vmemory::VMemory,
+};
 
 #[derive(Clone)]
 pub struct EmulatorState<'a> {
     pub beep: bool,
-    pub draw: Option<&'a Box<[u8]>>
+    pub draw: Option<&'a Box<[u8]>>,
 }
 
 #[derive(Clone)]
@@ -34,34 +40,35 @@ impl Cpu {
             timer: timer,
             vmemory: vmemory,
 
-            rng: rng
+            rng: rng,
         }
     }
 
-    pub fn cycle<'a>(&'a mut self, input: InputEvent) -> Result<EmulatorState<'a>, String>{
+    pub fn cycle<'a>(&'a mut self, input: InputEvent) -> Result<EmulatorState<'a>, String> {
         // fetch, decode and execute instruction
-        let op_code= self.fetch();
-
+        let op_code = self.fetch();
         self.decode_and_execute(op_code, input)?;
 
         // update timers
         let beep = self.timer.update();
 
-        let draw = if self.vmemory.draw_flag { Some(&self.vmemory.buffer) } else { None };
-        self.vmemory.draw_flag = false;
+        // update draw state
+        let draw = if self.vmemory.draw_flag {
+            self.vmemory.draw_flag = false;
+            Some(&self.vmemory.buffer)
+        } else {
+            None
+        };
 
-        Ok(
-            EmulatorState {
-                beep: beep,
-                draw: draw,
-            }
-        )
+        Ok(EmulatorState {
+            beep: beep,
+            draw: draw,
+        })
     }
 
     pub fn debug_print(&mut self) {
         self.vmemory.debug_print_buffer();
     }
-
 
     fn fetch(&mut self) -> u16 {
         let pc = self.pc as usize;
@@ -70,17 +77,17 @@ impl Cpu {
 
         // increment program counter, doing this here avoids duplication later on
         self.pc += 2;
-        
+
         first_byte << 8 | second_byte
     }
 
-    fn decode_and_execute(&mut self, op_code: u16, input: InputEvent) -> Result<(), String>{
+    fn decode_and_execute(&mut self, op_code: u16, input: InputEvent) -> Result<(), String> {
         let x = ((op_code & 0x0F00) >> 8) as usize;
         let y = ((op_code & 0x00F0) >> 4) as usize;
         let nnn = (op_code & 0x0FFF) as u16;
         let kk = (op_code & 0x00FF) as u8;
         let n = (op_code & 0x000F) as u8;
-    
+
         let mut unrecognized = false;
 
         match op_code & 0xF000 {
@@ -117,7 +124,7 @@ impl Cpu {
                 0x9E => self.op_ex9e(x, input),
                 0xA1 => self.op_exa1(x, input),
                 _ => unrecognized = true,
-            }
+            },
             0xF000 => match op_code & 0x00FF {
                 0x07 => self.op_fx07(x),
                 0x0A => self.op_fx0a(x, input),
@@ -129,7 +136,7 @@ impl Cpu {
                 0x55 => self.op_fx55(x),
                 0x65 => self.op_fx65(x),
                 _ => unrecognized = true,
-            }
+            },
             _ => unrecognized = true,
         }
 
@@ -255,7 +262,11 @@ impl Cpu {
         self.v[0xF] = 0;
 
         for i in 0..n {
-            self.v[0xF] |= self.vmemory.draw_byte_no_wrap(xp, yp, self.memory.mem[self.i as usize + i as usize]);
+            self.v[0xF] |= self.vmemory.draw_byte_no_wrap(
+                xp,
+                yp,
+                self.memory.mem[self.i as usize + i as usize],
+            );
             yp += 1;
         }
 
@@ -289,7 +300,14 @@ impl Cpu {
         }
 
         match res {
-            None => {self.pc -= 2; self.timer.delay_timer += 1; self.timer.sound_timer += 1;},
+            None => {
+                self.pc -= 2;
+                self.timer.delay_timer += 1;
+                
+                if self.timer.sound_timer > 0 {
+                    self.timer.sound_timer += 1;
+                }
+            }
             Some(val) => self.v[x] = val,
         }
     }
@@ -316,7 +334,6 @@ impl Cpu {
         self.memory.mem[self.i as usize + 0] = tmp / 100;
         self.memory.mem[self.i as usize + 1] = (tmp / 10) % 10;
         self.memory.mem[self.i as usize + 2] = tmp % 10;
-        
     }
 
     fn op_fx55(&mut self, x: usize) {
@@ -331,4 +348,3 @@ impl Cpu {
         }
     }
 }
-

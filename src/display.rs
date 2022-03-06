@@ -2,14 +2,23 @@ use sdl2::{render::Canvas, video::Window, Sdl, pixels::Color, rect::Rect};
 
 use crate::vmemory::{SCREEN_WIDTH, SCREEN_HEIGHT, idx};
 
-pub struct Display {
+const RED: (u8, u8, u8, u8, u8, u8) = (255, 180, 40, 120, 8, 0);
+const GREEN: (u8, u8, u8, u8, u8, u8) = (55, 255, 40, 30, 80, 0);
+const BLUE: (u8, u8, u8, u8, u8, u8) = (5, 50, 90, 60, 114, 164);
+
+const BWHITE: (u8, u8, u8, u8, u8, u8) = (255, 255, 255, 0, 0, 0);
+const BRED: (u8, u8, u8, u8, u8, u8) = (255, 0, 0, 0, 0, 0);
+const BGREEN: (u8, u8, u8, u8, u8, u8) = (0, 255, 0, 0, 0, 0);
+const BBLUE: (u8, u8, u8, u8, u8, u8) = (0, 0, 255, 0, 0, 0);
+
+pub struct DisplayHandler {
     canvas: Canvas<Window>,
-    primaryColor: Color,
-    secondaryColor: Color,
+    primary_color: Color,
+    secondary_color: Color,
 }
 
-impl Display {
-    pub fn new(sdl_context: &Sdl, scale: u32) -> Display {
+impl DisplayHandler {
+    pub fn new(sdl_context: &Sdl, scale: u32) -> DisplayHandler {
         let video_subsystem = sdl_context.video().unwrap();
 
         let width = (SCREEN_WIDTH as u32) * scale;
@@ -17,8 +26,6 @@ impl Display {
 
         let window = video_subsystem.window("chip8emu_rs", width, height)
         .position_centered()
-        //.resizable()
-        //.fullscreen()
         .build()
         .unwrap();
 
@@ -27,10 +34,12 @@ impl Display {
         canvas.clear();
         canvas.present();
 
-        Display {
+        let color = BWHITE;
+
+        DisplayHandler {
             canvas: canvas,
-            primaryColor: Color::RGB(5, 50, 90),
-            secondaryColor: Color::RGB(60, 114, 164),
+            primary_color: Color::RGB(color.0, color.1, color.2),
+            secondary_color: Color::RGB(color.3, color.4, color.5),
         }
     }
 
@@ -38,11 +47,11 @@ impl Display {
         for y in 0..SCREEN_HEIGHT {
             for x in 0..SCREEN_WIDTH {
                 if buffer[idx(x, y)] == 1 { 
-                    self.canvas.set_draw_color(self.primaryColor);
+                    self.canvas.set_draw_color(self.primary_color);
                 } else {
-                    self.canvas.set_draw_color(self.secondaryColor);
+                    self.canvas.set_draw_color(self.secondary_color);
                 }
-                self.canvas.fill_rect(Rect::new((x * scale) as i32, (y * scale) as i32, 10, 10));
+                self.canvas.fill_rect(Rect::new((x * scale) as i32, (y * scale) as i32, scale as u32, scale as u32));
             }
         }
 

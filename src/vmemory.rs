@@ -24,7 +24,7 @@ impl VMemory {
 
     pub fn clear(&mut self) {
         self.buffer.fill(0x0);
-        self.draw_flag = true;
+        //self.draw_flag = true;
     }
 
     pub fn normalize_coordinates(x: u8, y: u8) -> (usize, usize) {
