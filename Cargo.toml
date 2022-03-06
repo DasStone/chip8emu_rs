@@ -12,3 +12,4 @@ keywords = ["chip8", "emulator", "emulation"]
 [dependencies]
 rand = "0.8.3"
 sdl2 = "0.35.2"
+clap = "2.33.3"

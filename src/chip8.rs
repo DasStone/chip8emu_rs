@@ -5,6 +5,7 @@ use crate::rng::RandomByte;
 use crate::sound::SoundHandler;
 use crate::{memory::{Memory}, vmemory::VMemory, timer::Timer, input::InputHandler, cpu::Cpu};
 
+
 pub struct Config {
     pub program_filename: String,
     pub scale: u32,
@@ -25,11 +26,6 @@ pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
     let mut input = InputHandler::new(&sdl_context);
     let mut display = DisplayHandler::new(&sdl_context, config.scale);
     let sound = SoundHandler::new(&sdl_context, config.muted);
-
-    sound.resume();
-    std::thread::sleep(Duration::from_millis(1000));
-    sound.pause();
-
 
     // Main Loop
     'running: loop {

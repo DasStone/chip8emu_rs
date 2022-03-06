@@ -1,4 +1,5 @@
 use chip8::{emulate_chip8, Config};
+use clap::{App, Arg};
 use std::process;
 
 mod chip8;
@@ -11,9 +12,27 @@ mod memory;
 mod rng;
 mod input;
 
+#[macro_use]
+extern crate clap;
 extern crate sdl2;
 
 fn main() {
+    let matches = App::new("chip8emu_rs")
+        .author(crate_authors!())
+        .version(crate_version!())
+        .about("Chip8 emulator")
+        .version_short("v")
+        .arg(Arg::with_name("ROM")
+            .help("Filename of the chip8-program")
+            .required(true))
+        .arg(Arg::with_name("SCALE")
+            .help("Scales pixel size"))
+        .get_matches();
+
+    let scale = value_t!(matches, "SCALE", u32).unwrap_or(10);
+
+    println!("Scale is: {}", scale);
+
     // TODO: parse config from args
     let config = Config {
         program_filename: "Space Invaders [David Winter].ch8".to_string(),
