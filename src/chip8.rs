@@ -8,6 +8,7 @@ use crate::{memory::{Memory}, vmemory::VMemory, timer::Timer, input::InputHandle
 
 pub struct Config {
     pub program_filename: String,
+    pub theme: String,
     pub scale: u32,
     pub muted: bool,
 }
@@ -24,7 +25,7 @@ pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
     // Initialize View
     let sdl_context = sdl2::init().unwrap();
     let mut input = InputHandler::new(&sdl_context);
-    let mut display = DisplayHandler::new(&sdl_context, config.scale);
+    let mut display = DisplayHandler::new(&sdl_context, config.scale, &config.theme);
     let sound = SoundHandler::new(&sdl_context, config.muted);
 
     // Main Loop
