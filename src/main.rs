@@ -1,5 +1,6 @@
 use chip8::{emulate_chip8, Config};
 use clap::{App, Arg};
+use display::{theme_of_str, default_theme};
 use std::process;
 
 mod chip8;
@@ -17,6 +18,7 @@ extern crate clap;
 extern crate sdl2;
 
 fn main() {
+    // define CLI
     let matches = App::new("chip8emu_rs")
         .author(crate_authors!())
         .version(crate_version!())
@@ -37,42 +39,47 @@ fn main() {
             Arg::with_name("THEME")
                 .short("c")
                 .long("color")
-                .help("Color Theme: r, g, b, br, bg, bb, bw")
+                .help("Color Theme: r, g, b, br, bg, bb, bw. Default is bw.")
                 .takes_value(true),
         )
         .arg(Arg::with_name("SCALE")
                 .short("s")
                 .long("scale")
-                .help("Scales pixel size")
+                .help("Scales pixel size. Valid Range: [1, 100]. Default is 10.")
                 .takes_value(true)
         )
         .get_matches();
 
-    let scale = value_t!(matches, "SCALE", u32).unwrap_or(10);
+    // parse Arguments
     let muted = matches.is_present("MUTED");
-
-    println!("Scale is: {}", scale);
-    println!("Mute: {}", muted);
-
-    let mut theme = "bw";
-    if let Some(ov) = matches.value_of("THEME") {
-        theme = ov;
+    
+    let scale = value_t!(matches, "SCALE", u32).unwrap_or(10);
+    if scale < 1 || scale > 100 {
+        eprintln!("Argument error. Scale must be an Integer in Range [1, 100]");
+        process::exit(1);
     }
 
+    let mut theme = default_theme();
+    if let Some(ov) = matches.value_of("THEME") {
+        theme = theme_of_str(ov).unwrap_or_else(|err| {
+            eprintln!("Argument error. {}", err);
+            process::exit(1);
+        })
+    }
+
+    let filename = matches.value_of("ROM").unwrap();
+
+    // create emulator configuration
     let config = Config {
-        program_filename: "Space Invaders [David Winter].ch8".to_string(),
-        theme: theme.to_string(),
-        scale: 10,
-        muted: false,
+        program_filename: filename.to_string(),
+        theme: theme,
+        scale: scale,
+        muted: muted,
     };
 
+    // start emulator
     if let Err(err) = emulate_chip8(config) {
         eprintln!("Application error: {}", err);
         process::exit(1);
     }
-
-    //emulate_chip8("Russian Roulette [Carmelo Cortez, 1978].ch8");
-    //emulate_chip8("invaders.c8");
-    //emulate_chip8("test_opcode.ch8");
-    //emulate_chip8("c8_test.c8");
 }

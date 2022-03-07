@@ -2,17 +2,18 @@ use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window, Sdl};
 
 use crate::vmemory::{idx, SCREEN_HEIGHT, SCREEN_WIDTH};
 
-const RED: (u8, u8, u8, u8, u8, u8) = (255, 180, 40, 120, 8, 0);
-const GREEN: (u8, u8, u8, u8, u8, u8) = (55, 255, 40, 30, 80, 0);
-const BLUE: (u8, u8, u8, u8, u8, u8) = (5, 50, 90, 60, 114, 164);
+pub type ColorTheme = (u8, u8, u8, u8, u8, u8);
 
-const BRED: (u8, u8, u8, u8, u8, u8) = (255, 0, 0, 0, 0, 0);
-const BGREEN: (u8, u8, u8, u8, u8, u8) = (0, 255, 0, 0, 0, 0);
-const BBLUE: (u8, u8, u8, u8, u8, u8) = (0, 0, 255, 0, 0, 0);
-const BWHITE: (u8, u8, u8, u8, u8, u8) = (255, 255, 255, 0, 0, 0);
+const RED: ColorTheme = (255, 180, 40, 120, 8, 0);
+const GREEN: ColorTheme = (55, 255, 40, 30, 80, 0);
+const BLUE: ColorTheme = (5, 50, 90, 60, 114, 164);
+const BRED: ColorTheme = (255, 0, 0, 0, 0, 0);
+const BGREEN: ColorTheme = (0, 255, 0, 0, 0, 0);
+const BBLUE: ColorTheme = (0, 0, 255, 0, 0, 0);
+const BWHITE: ColorTheme = (255, 255, 255, 0, 0, 0);
 
-fn get_theme(t: &str) -> (u8, u8, u8, u8, u8, u8) {
-    match t {
+pub fn theme_of_str(str: &str) -> Result<ColorTheme, String> {
+    let t: ColorTheme = match str {
         "r" => RED,
         "g" => GREEN,
         "b" => BLUE,
@@ -20,14 +21,13 @@ fn get_theme(t: &str) -> (u8, u8, u8, u8, u8, u8) {
         "bg" => BGREEN,
         "bb" => BBLUE,
         "bw" => BWHITE,
-        _ => {
-            eprintln!(
-                "Theme: {} is unknown. Defaulting to Black and White \"bw\"",
-                t
-            );
-            BWHITE
-        }
-    }
+        _ => return Err(format!("Theme \"{}\" is not knwon.", str))
+    };
+    Ok(t)
+}
+
+pub fn default_theme() -> ColorTheme {
+    BWHITE
 }
 
 pub struct DisplayHandler {
@@ -37,7 +37,7 @@ pub struct DisplayHandler {
 }
 
 impl DisplayHandler {
-    pub fn new(sdl_context: &Sdl, scale: u32, theme: &str) -> DisplayHandler {
+    pub fn new(sdl_context: &Sdl, scale: u32, theme: ColorTheme) -> DisplayHandler {
         let video_subsystem = sdl_context.video().unwrap();
 
         let width = (SCREEN_WIDTH as u32) * scale;
@@ -54,23 +54,24 @@ impl DisplayHandler {
         canvas.clear();
         canvas.present();
 
-        let color = get_theme(theme);
-
         DisplayHandler {
             canvas: canvas,
-            primary_color: Color::RGB(color.0, color.1, color.2),
-            secondary_color: Color::RGB(color.3, color.4, color.5),
+            primary_color: Color::RGB(theme.0, theme.1, theme.2),
+            secondary_color: Color::RGB(theme.3, theme.4, theme.5),
         }
     }
 
     pub fn draw(&mut self, buffer: &Box<[u8]>, scale: usize) {
+        self.canvas.set_draw_color(self.secondary_color);
+        self.canvas.clear();
+        self.canvas.set_draw_color(self.primary_color);
+
         for y in 0..SCREEN_HEIGHT {
             for x in 0..SCREEN_WIDTH {
-                if buffer[idx(x, y)] == 1 {
-                    self.canvas.set_draw_color(self.primary_color);
-                } else {
-                    self.canvas.set_draw_color(self.secondary_color);
+                if buffer[idx(x, y)] != 1 {
+                    continue;
                 }
+                
                 let _ = self.canvas.fill_rect(Rect::new(
                     (x * scale) as i32,
                     (y * scale) as i32,
