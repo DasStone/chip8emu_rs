@@ -218,9 +218,9 @@ impl Cpu {
     }
 
     fn op_8xy5(&mut self, x: usize, y: usize) {
-        self.v[0xF] = if self.v[x] > self.v[y] { 1 } else { 0 };
-        let res = self.v[x].wrapping_sub(self.v[y]);
+        let (res, carry) = self.v[x].overflowing_sub(self.v[y]);
         self.v[x] = res;
+        self.v[0xF] = u8::from(!carry);
     }
 
     fn op_8xy6(&mut self, x: usize, _y: usize) {
@@ -229,9 +229,9 @@ impl Cpu {
     }
 
     fn op_8xy7(&mut self, x: usize, y: usize) {
-        self.v[0xF] = if self.v[y] > self.v[x] { 1 } else { 0 };
-        let res = self.v[y].wrapping_sub(self.v[x]);
+        let (res, carry) = self.v[y].overflowing_sub(self.v[x]);
         self.v[x] = res;
+        self.v[0xF] = u8::from(!carry);
     }
 
     fn op_8xye(&mut self, x: usize, _y: usize) {
