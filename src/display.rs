@@ -34,6 +34,7 @@ pub struct DisplayHandler {
     canvas: Canvas<Window>,
     primary_color: Color,
     secondary_color: Color,
+    scale: u32,
 }
 
 impl DisplayHandler {
@@ -58,10 +59,11 @@ impl DisplayHandler {
             canvas: canvas,
             primary_color: Color::RGB(theme.0, theme.1, theme.2),
             secondary_color: Color::RGB(theme.3, theme.4, theme.5),
+            scale: scale,
         }
     }
 
-    pub fn draw(&mut self, buffer: &Box<[u8]>, scale: usize) {
+    pub fn draw(&mut self, buffer: &Box<[u8]>) -> Result<(), String> {
         self.canvas.set_draw_color(self.secondary_color);
         self.canvas.clear();
         self.canvas.set_draw_color(self.primary_color);
@@ -72,15 +74,16 @@ impl DisplayHandler {
                     continue;
                 }
                 
-                let _ = self.canvas.fill_rect(Rect::new(
-                    (x * scale) as i32,
-                    (y * scale) as i32,
-                    scale as u32,
-                    scale as u32,
-                ));
+                self.canvas.fill_rect(Rect::new(
+                    (x * self.scale as usize) as i32,
+                    (y * self.scale as usize) as i32,
+                    self.scale,
+                    self.scale,
+                ))?;
             }
         }
 
         self.canvas.present();
+        Ok(())
     }
 }

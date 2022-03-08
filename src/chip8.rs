@@ -56,7 +56,7 @@ pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
 
             match state.draw {
                 None => (),
-                Some(pixels) => display.draw(pixels, config.scale as usize),
+                Some(pixels) => display.draw(pixels)?,
             }
             
             std::thread::sleep(Duration::from_millis(2));
