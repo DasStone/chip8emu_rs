@@ -21,7 +21,7 @@ const FONT_SET: [u8; 80] = [
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 ];
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Memory {
     pub mem: Box<[u8]>,
 }

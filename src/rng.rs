@@ -1,6 +1,6 @@
 use rand::{prelude::ThreadRng, distributions::Uniform, Rng};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RandomByte {
     rng: ThreadRng,
     side: Uniform<u8>,

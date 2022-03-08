@@ -6,7 +6,7 @@ pub fn idx(x: usize, y: usize) -> usize {
     y * SCREEN_WIDTH + x
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct VMemory {
     pub buffer: Box<[u8]>,
     pub draw_flag: bool,
@@ -57,7 +57,7 @@ impl VMemory {
         vf
     }
 
-    pub fn debug_print_buffer(&self) {
+    pub fn _debug_print_buffer(&self) {
         for y in 0..SCREEN_HEIGHT {
             for x in 0..SCREEN_WIDTH {
                 print!("{}", if self.buffer[idx(x, y)] == 1 { '@' } else { ' ' });

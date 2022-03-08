@@ -1,4 +1,4 @@
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Timer {
     pub delay_timer: u8,
     pub sound_timer: u8,

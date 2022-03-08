@@ -12,7 +12,7 @@ pub struct EmulatorState<'a> {
     pub draw: Option<&'a Box<[u8]>>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Cpu {
     i: u16,
     pc: u16,
@@ -66,8 +66,25 @@ impl Cpu {
         })
     }
 
-    pub fn debug_print(&mut self) {
-        self.vmemory.debug_print_buffer();
+    pub fn _debug_print(&mut self, print_vmemory: bool, print_memory: bool) {
+        println!("--------- CPU Info ---------");
+        println!("+ Special Registers:\nI: {}\npc: {}\nDelay Timer: {}\nSound Timer: {}",
+            self.i,
+            self.pc,
+            self.timer.delay_timer,
+            self.timer.sound_timer
+        );
+        println!("+ Stack:\nsp: {}\nstack: {:?}", self.pc, self.stack);
+        println!("+ GP Registers:\n{:?}", self.v);
+        if print_vmemory {
+            println!("------- Video Memory -------");
+            self.vmemory._debug_print_buffer();
+        }
+        if print_memory {
+            println!("---------- Memory ----------");
+            println!("{:?}", self.memory);
+        }
+        println!("----------------------------");
     }
 
     fn fetch(&mut self) -> u16 {
