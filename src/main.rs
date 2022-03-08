@@ -53,16 +53,29 @@ fn main() {
     // parse Arguments
     let muted = matches.is_present("MUTED");
     
-    let scale = value_t!(matches, "SCALE", u32).unwrap_or(10);
-    if scale < 1 || scale > 100 {
-        eprintln!("Argument error. Scale must be an Integer in Range [1, 100]");
-        process::exit(1);
+    // let scale = value_t!(matches, "SCALE", u32).unwrap_or(10);
+    // if scale < 1 || scale > 100 {
+    //     eprintln!("Argument error. Scale must be an Integer in Range [1, 100]");
+    //     process::exit(1);
+    // }
+
+    let mut scale = 10;
+    if let Some(ov) = matches.value_of("SCALE") {
+        let tmp = ov.parse::<u32>().unwrap_or_else(|_| {
+            eprintln!("Application error: SCALE must be an Integer within [1, 100]. You provided \"{}\"", ov);
+            process::exit(1);
+        });
+        if tmp < 1 || tmp > 100 {
+            eprintln!("Application error: SCALE must be an Integer within [1, 100]. You provided \"{}\"", ov);
+            process::exit(1);
+        }
+        scale = tmp;
     }
 
     let mut theme = default_theme();
     if let Some(ov) = matches.value_of("THEME") {
         theme = theme_of_str(ov).unwrap_or_else(|err| {
-            eprintln!("Argument error. {}", err);
+            eprintln!("Application error: {}", err);
             process::exit(1);
         })
     }
