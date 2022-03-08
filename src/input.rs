@@ -3,6 +3,7 @@ use sdl2::{EventPump, Sdl, keyboard::Scancode, event::Event};
 #[derive(Clone)]
 pub struct InputEvent {
     pub quit: bool,
+    pub restart: bool,
     pub keypad_state: Box<[u8]>,
 }
 
@@ -21,6 +22,7 @@ impl InputHandler {
 
     pub fn poll(&mut self) -> InputEvent {
         let mut quit = false;
+        let mut restart = false;
 
         for event in self.event_pump.poll_iter() {
             if let Event::Quit { .. } = event {
@@ -49,13 +51,15 @@ impl InputHandler {
                 Scancode::C => keypad_state[0xB] = 1,
                 Scancode::V => keypad_state[0xF] = 1,
                 Scancode::Escape => quit = true,
+                Scancode::Space => restart = true,
                 _ => (),
             }
         }
 
         InputEvent {
-            quit: quit,
-            keypad_state: keypad_state
+            quit,
+            restart,
+            keypad_state,
         }
     }
 }

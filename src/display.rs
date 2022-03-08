@@ -50,7 +50,7 @@ impl DisplayHandler {
             .unwrap();
 
         let mut canvas = window.into_canvas().build().unwrap();
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
+        canvas.set_draw_color(Color::RGB(theme.3, 4, 5));
         canvas.clear();
         canvas.present();
 
