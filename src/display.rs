@@ -30,6 +30,24 @@ pub fn default_theme() -> ColorTheme {
     BWHITE
 }
 
+pub fn scale_of_str(str: &str) -> Result<u32, String> {
+    let mut tmp = str.parse::<u32>().ok();
+    
+    tmp = match tmp {
+        None => None,
+        Some(s) => if s < 1 || s > 100 { None } else { Some(s) }
+    };
+
+    match tmp {
+        None => Err(format!("SCALE must be an Integer within [1, 100]. You provided \"{}\"", str)),
+        Some(s) => Ok(s),
+    }
+}
+
+pub fn default_scale() -> u32 {
+    10
+}
+
 pub struct DisplayHandler {
     canvas: Canvas<Window>,
     primary_color: Color,

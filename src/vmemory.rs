@@ -6,6 +6,11 @@ pub fn idx(x: usize, y: usize) -> usize {
     y * SCREEN_WIDTH + x
 }
 
+#[inline]
+pub fn normalize_coordinates(x: u8, y: u8) -> (usize, usize) {
+    (x as usize % SCREEN_WIDTH, y as usize % SCREEN_HEIGHT)
+}
+
 #[derive(Clone, Debug)]
 pub struct VMemory {
     pub buffer: Box<[u8]>,
@@ -23,35 +28,50 @@ impl VMemory {
     }
 
     pub fn clear(&mut self) {
+        self.draw_flag = true;
         self.buffer.fill(0x0);
-        //self.draw_flag = true;
     }
 
-    pub fn normalize_coordinates(x: u8, y: u8) -> (usize, usize) {
-        (x as usize % SCREEN_WIDTH, y as usize % SCREEN_HEIGHT)
-    }
+    pub fn draw_sprite_no_wrap(&mut self, x_pos: u8, y_pos: u8, sprite: &[u8]) -> u8 {
+        self.draw_flag = true;
 
-    pub fn draw_byte_no_wrap(&mut self, mut x: usize, y: usize, byte: u8) -> u8{
-        if y >= SCREEN_HEIGHT {
-            return 0;
-        }
+        // normalize coordinates
+        let (x, mut curr_y) = normalize_coordinates(x_pos, y_pos);
 
-        let mut mask: u8 = 0b10000000;
-        let mut vf: u8 = 0;
+        // flag value
+        let mut vf = 0;
 
-        for n in 0..8 {
-            if x >= SCREEN_WIDTH {
+        // iterate sprite rows
+        for byte in sprite {
+            // return flag when the end of the screen y direction was reached
+            if curr_y >= SCREEN_HEIGHT {
                 return vf;
             }
 
-            let new_pixel = (byte & mask) >> (7 - n);
-            let old_pixel = self.buffer[idx(x, y)];
-            //let draw = self.buffer[idx(x, y)] ^ pixel;
-            self.buffer[idx(x, y)] = old_pixel ^ new_pixel;
+            // x cannot be used directly, because all rows should start at the same x position
+            let mut curr_x = x;
+            let mut mask: u8 = 0b10000000;
 
-            vf |= new_pixel & old_pixel;
-            x += 1;
-            mask >>= 1;
+            // iterate sprite columns
+            for n in 0..8 {
+                // continue with the next row if the end of this one is reached
+                if curr_x >= SCREEN_WIDTH {
+                    break;
+                }
+    
+                // determine new pixel value
+                let new_pixel = (*byte & mask) >> (7 - n);
+                let old_pixel = self.buffer[idx(curr_x, curr_y)];
+                self.buffer[idx(curr_x, curr_y)] = old_pixel ^ new_pixel;
+    
+                // set flag and update mask and current drawing position (x)
+                vf |= new_pixel & old_pixel;
+                mask >>= 1;
+                curr_x += 1;
+            }
+
+            // update current drawing position (y)
+            curr_y += 1;
         }
 
         vf

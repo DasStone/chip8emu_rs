@@ -60,6 +60,7 @@ impl Cpu {
             None
         };
 
+        // return emulator state
         Ok(EmulatorState {
             beep: beep,
             draw: draw,
@@ -68,11 +69,9 @@ impl Cpu {
 
     pub fn _debug_print(&mut self, print_vmemory: bool, print_memory: bool) {
         println!("--------- CPU Info ---------");
-        println!("+ Special Registers:\nI: {}\npc: {}\nDelay Timer: {}\nSound Timer: {}",
-            self.i,
-            self.pc,
-            self.timer.delay_timer,
-            self.timer.sound_timer
+        println!(
+            "+ Special Registers:\nI: {}\npc: {}\nDelay Timer: {}\nSound Timer: {}",
+            self.i, self.pc, self.timer.delay_timer, self.timer.sound_timer
         );
         println!("+ Stack:\nsp: {}\nstack: {:?}", self.pc, self.stack);
         println!("+ GP Registers:\n{:?}", self.v);
@@ -158,7 +157,7 @@ impl Cpu {
         }
 
         if unrecognized {
-            return Err(format!("Instruction unknown {}", op_code));
+            return Err(format!("Instruction {} unknown", op_code));
         }
 
         Ok(())
@@ -275,19 +274,9 @@ impl Cpu {
     }
 
     fn op_dxyn(&mut self, x: usize, y: usize, n: u8) {
-        let (xp, mut yp) = VMemory::normalize_coordinates(self.v[x], self.v[y]);
-        self.v[0xF] = 0;
-
-        for i in 0..n {
-            self.v[0xF] |= self.vmemory.draw_byte_no_wrap(
-                xp,
-                yp,
-                self.memory.mem[self.i as usize + i as usize],
-            );
-            yp += 1;
-        }
-
-        self.vmemory.draw_flag = true;
+        let start = self.i as usize;
+        let end = start + (n as usize);
+        self.v[0xF] = self.vmemory.draw_sprite_no_wrap(self.v[x], self.v[y], &self.memory.mem[start .. end]);
     }
 
     fn op_ex9e(&mut self, x: usize, input: InputEvent) {
@@ -320,7 +309,7 @@ impl Cpu {
             None => {
                 self.pc -= 2;
                 self.timer.delay_timer += 1;
-                
+
                 if self.timer.sound_timer > 0 {
                     self.timer.sound_timer += 1;
                 }
