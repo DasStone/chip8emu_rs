@@ -1,6 +1,6 @@
 use chip8::{emulate_chip8, Config};
 use clap::{App, Arg};
-use display::{default_theme, theme_of_str, default_scale, scale_of_str, ColorTheme};
+use display::{default_theme, theme_of_str, default_scale, scale_of_str};
 use std::process;
 
 mod chip8;

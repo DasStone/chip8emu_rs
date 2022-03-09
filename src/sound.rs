@@ -29,7 +29,8 @@ impl SoundHandler {
         let audio_subsystem = sdl_context.audio().unwrap();
 
         let desired_spec = AudioSpecDesired {
-            freq: Some(44100),
+            //freq: Some(44100),
+            freq: Some(11025),
             channels: Some(1),
             samples: None,
         };

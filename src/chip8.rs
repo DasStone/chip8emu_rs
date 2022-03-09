@@ -32,6 +32,8 @@ pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
         let rng = RandomByte::new();
         let mut cpu = Cpu::new(mem, timer, vmemory, rng);
 
+        let mut counter = 0;
+
         // emulate system
         'emulation: loop {
             let input_event = input.poll();
@@ -49,8 +51,9 @@ pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
             let state = cpu.cycle(input_event)?;
 
             if state.beep {
+                counter = 20;
                 sound.resume();
-            } else {
+            } else if counter == 0 {
                 sound.pause();
             }
 
@@ -60,6 +63,10 @@ pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
             }
             
             std::thread::sleep(Duration::from_millis(2));
+
+            if counter > 0 {
+                counter -= 1;
+            }
         }
     }
 
