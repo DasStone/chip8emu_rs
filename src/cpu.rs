@@ -307,11 +307,6 @@ impl Cpu {
         match res {
             None => {
                 self.pc -= 2;
-                self.timer.delay_timer += 1;
-
-                if self.timer.sound_timer > 0 {
-                    self.timer.sound_timer += 1;
-                }
             }
             Some(val) => self.v[x] = val,
         }
