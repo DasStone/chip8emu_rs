@@ -8,7 +8,6 @@ use crate::{
 
 #[derive(Clone)]
 pub struct EmulatorState<'a> {
-    pub beep: bool,
     pub draw: Option<&'a Box<[u8]>>,
 }
 
@@ -49,9 +48,6 @@ impl Cpu {
         let op_code = self.fetch();
         self.decode_and_execute(op_code, input)?;
 
-        // update timers
-        let beep = self.timer.update();
-
         // update draw state
         let draw = if self.vmemory.draw_flag {
             self.vmemory.draw_flag = false;
@@ -62,9 +58,12 @@ impl Cpu {
 
         // return emulator state
         Ok(EmulatorState {
-            beep: beep,
             draw: draw,
         })
+    }
+
+    pub fn update_timers(&mut self) -> bool {
+        self.timer.update()
     }
 
     pub fn _debug_print(&mut self, print_vmemory: bool, print_memory: bool) {
