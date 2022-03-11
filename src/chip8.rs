@@ -6,53 +6,69 @@ use crate::rng::RandomByte;
 use crate::sound::SoundHandler;
 use crate::{memory::{Memory}, vmemory::VMemory, timer::Timer, input::InputHandler, cpu::Cpu};
 
+pub const DEFAULT_CPU_CLOCK: u64 = 600;
+
+pub fn cpu_clock_from_string(str: &str) -> Result<u64, String> {
+    let mut tmp = str.parse::<u64>().ok();
+    
+    tmp = match tmp {
+        None => None,
+        Some(s) => if s < 500 || s > 1000 { None } else { Some(s) }
+    };
+
+    match tmp {
+        None => Err(format!("CLOCK must be an Integer within [500, 1000]. You provided \"{}\"", str)),
+        Some(s) => Ok(s),
+    }
+}
+
+
 pub struct Config {
     pub program_filename: String,
     pub theme: ColorTheme,
     pub scale: u32,
+    pub cpu_clock: u64,
     pub muted: bool,
 }
 
 pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
-    // Initialize view
+    // initialize view
     let sdl_context = sdl2::init().unwrap();
     let mut input = InputHandler::new(&sdl_context);
     let mut display = DisplayHandler::new(&sdl_context, config.scale, config.theme);
     let sound = SoundHandler::new(&sdl_context, config.muted);
 
-    // Read provided ROM file
+    // read provided ROM file
     let program = fs::read(config.program_filename)?;
 
-    // Initialize Timings
-    let cycle_duration_timer: u128 = 1_000_000_000 / 60;
-    let cycle_duration_cpu:u128 = 1_000_000_000 / 700;
+    // initialize timings
+    let cycle_duration_timer = Duration::from_nanos(1_000_000_000 / 60);
+    let cycle_duration_cpu = Duration::from_nanos(1_000_000_000 / config.cpu_clock);
 
-    // Main Loop
+    // main Loop
     'running: loop {
-        // Initialize emulator
+        // initialize emulator
         let mem = Memory::new(&program)?;
         let timer = Timer::new();
         let vmemory = VMemory::new();
         let rng = RandomByte::new();
         let mut cpu = Cpu::new(mem, timer, vmemory, rng);
 
+        // this delays pausing the beep after it started. Otherwise it may not come through
         let mut sound_delay = 0;
-
-        let truth = Instant::now();
-        let mut counter = 0;
 
         // emulate system
         'emulation: loop {
 
+            // start time measurment
             let now = Instant::now();
-            let mut elapsed = 0;
+            let mut elapsed = Duration::from_secs(0);
 
             // handle timers
-            //println!("timers");
             let beep = cpu.update_timers();
 
             if beep {
-                sound_delay = 5;
+                sound_delay = 3;
                 sound.resume();
             } else if sound_delay == 0 {
                 sound.pause();
@@ -62,17 +78,8 @@ pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
                 sound_delay -= 1;
             }
 
-            // if counter == 60 {
-            //     println!("Time: {}", truth.elapsed().as_millis());
-            //     counter = 0;
-            //     //panic!();
-            // }
-
-            // counter += 1;
-
+            // cycle the cpu at the specified timings until the next tick of the timers
             'cpu: loop {
-                //println!("cpu");
-
                 let input_event = input.poll();
 
                 // Quitting takes precedence over restarting
@@ -92,23 +99,20 @@ pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
                     Some(pixels) => display.draw(pixels)?,
                 }
 
-                let cycle_time = now.elapsed().as_nanos() - elapsed;
+                // Determine cpu timings
+                let cycle_time = now.elapsed() - elapsed;
                 elapsed += cycle_time;
 
                 if cycle_time < cycle_duration_cpu {
                     let sleep = cycle_duration_cpu - cycle_time;
                     elapsed += sleep;
-                    std::thread::sleep(Duration::from_nanos(sleep as u64));
+                    std::thread::sleep(sleep);
                 }
-
-                //println!("elapsed {} ----- cycle_duration_timer {}", elapsed, cycle_duration_timer);
 
                 if elapsed >= cycle_duration_timer {
                     break 'cpu;
                 }
-            } 
-
-            //println!("{}", now.elapsed().as_millis());
+            }
         }
     }
 

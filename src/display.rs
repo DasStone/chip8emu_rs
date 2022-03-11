@@ -11,6 +11,9 @@ const BRED: ColorTheme = (255, 0, 0, 0, 0, 0);
 const BGREEN: ColorTheme = (0, 255, 0, 0, 0, 0);
 const BBLUE: ColorTheme = (0, 0, 255, 0, 0, 0);
 const BWHITE: ColorTheme = (255, 255, 255, 0, 0, 0);
+pub const DEFAULT_THEME: ColorTheme = BWHITE;
+
+pub const DEFAULT_SCALE: u32 = 10;
 
 pub fn theme_of_str(str: &str) -> Result<ColorTheme, String> {
     let t: ColorTheme = match str {
@@ -26,10 +29,6 @@ pub fn theme_of_str(str: &str) -> Result<ColorTheme, String> {
     Ok(t)
 }
 
-pub fn default_theme() -> ColorTheme {
-    BWHITE
-}
-
 pub fn scale_of_str(str: &str) -> Result<u32, String> {
     let mut tmp = str.parse::<u32>().ok();
     
@@ -42,10 +41,6 @@ pub fn scale_of_str(str: &str) -> Result<u32, String> {
         None => Err(format!("SCALE must be an Integer within [1, 100]. You provided \"{}\"", str)),
         Some(s) => Ok(s),
     }
-}
-
-pub fn default_scale() -> u32 {
-    10
 }
 
 pub struct DisplayHandler {

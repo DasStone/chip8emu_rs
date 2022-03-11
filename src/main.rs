@@ -1,6 +1,6 @@
-use chip8::{emulate_chip8, Config};
+use chip8::{emulate_chip8, Config, cpu_clock_from_string, DEFAULT_CPU_CLOCK};
 use clap::{App, Arg};
-use display::{default_theme, theme_of_str, default_scale, scale_of_str};
+use display::{theme_of_str, scale_of_str, DEFAULT_SCALE, DEFAULT_THEME};
 use std::process;
 
 mod chip8;
@@ -38,8 +38,8 @@ fn main() {
         )
         .arg(
             Arg::with_name("THEME")
-                .short("c")
-                .long("color")
+                .short("t")
+                .long("theme")
                 .help("Color Theme: r, g, b, br, bg, bb, bw. Default is bw.")
                 .takes_value(true),
         )
@@ -47,6 +47,12 @@ fn main() {
                 .short("s")
                 .long("scale")
                 .help("Scales pixel size. Valid Range: [1, 100]. Default is 10.")
+                .takes_value(true)
+        )
+        .arg(Arg::with_name("CLOCK")
+                .short("c")
+                .long("clock")
+                .help("Sets CPU clock speed. Valid Range: [500, 1000]. Default is 600.")
                 .takes_value(true)
         )
         .get_matches();
@@ -62,7 +68,7 @@ fn main() {
             process::exit(1);
         })
     } else {
-        default_scale()
+        DEFAULT_SCALE
     };
 
     let theme = if let Some(ov) = matches.value_of("THEME") {
@@ -71,7 +77,16 @@ fn main() {
             process::exit(1);
         })
     } else {
-        default_theme()
+        DEFAULT_THEME
+    };
+
+    let cpu_clock = if let Some(ov) = matches.value_of("CLOCK") {
+        cpu_clock_from_string(ov).unwrap_or_else(|err| {
+            eprintln!("Application error: {}", err);
+            process::exit(1);
+        })
+    } else {
+        DEFAULT_CPU_CLOCK
     };
 
     // create emulator configuration
@@ -79,6 +94,7 @@ fn main() {
         program_filename: filename.to_string(),
         theme: theme,
         scale: scale,
+        cpu_clock: cpu_clock,
         muted: muted,
     };
 
