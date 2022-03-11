@@ -305,9 +305,7 @@ impl Cpu {
         }
 
         match res {
-            None => {
-                self.pc -= 2;
-            }
+            None => self.pc -= 2,
             Some(val) => self.v[x] = val,
         }
     }
