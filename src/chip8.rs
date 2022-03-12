@@ -92,7 +92,7 @@ pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
                     break 'emulation
                 }
 
-                let state = cpu.cycle(input_event)?;
+                let state = cpu.cycle(&input_event.keypad_state)?;
 
                 match state.draw {
                     None => (),

@@ -1,5 +1,4 @@
 use crate::{
-    input::InputEvent,
     memory::{Memory, FONTSET_ADDRESS, PROGRAM_START},
     rng::RandomByte,
     timer::Timer,
@@ -43,7 +42,7 @@ impl Cpu {
         }
     }
 
-    pub fn cycle<'a>(&'a mut self, input: InputEvent) -> Result<EmulatorState<'a>, String> {
+    pub fn cycle<'a>(&'a mut self, input: &[u8]) -> Result<EmulatorState<'a>, String> {
         // fetch, decode and execute instruction
         let op_code = self.fetch();
         self.decode_and_execute(op_code, input)?;
@@ -96,7 +95,7 @@ impl Cpu {
         first_byte << 8 | second_byte
     }
 
-    fn decode_and_execute(&mut self, op_code: u16, input: InputEvent) -> Result<(), String> {
+    fn decode_and_execute(&mut self, op_code: u16, input: &[u8]) -> Result<(), String> {
         let x = ((op_code & 0x0F00) >> 8) as usize;
         let y = ((op_code & 0x00F0) >> 4) as usize;
         let nnn = (op_code & 0x0FFF) as u16;
@@ -278,14 +277,14 @@ impl Cpu {
         self.v[0xF] = self.vmemory.draw_sprite_no_wrap(self.v[x], self.v[y], &self.memory.mem[start .. end]);
     }
 
-    fn op_ex9e(&mut self, x: usize, input: InputEvent) {
-        if input.keypad_state[self.v[x] as usize] != 0 {
+    fn op_ex9e(&mut self, x: usize, input: &[u8]) {
+        if input[self.v[x] as usize] != 0 {
             self.pc += 2;
         }
     }
 
-    fn op_exa1(&mut self, x: usize, input: InputEvent) {
-        if input.keypad_state[self.v[x] as usize] == 0 {
+    fn op_exa1(&mut self, x: usize, input: &[u8]) {
+        if input[self.v[x] as usize] == 0 {
             self.pc += 2;
         }
     }
@@ -294,11 +293,11 @@ impl Cpu {
         self.v[x] = self.timer.delay_timer;
     }
 
-    fn op_fx0a(&mut self, x: usize, input: InputEvent) {
+    fn op_fx0a(&mut self, x: usize, input: &[u8]) {
         let mut res = None;
 
         for n in 0x0..=0xF {
-            if input.keypad_state[n] != 0 {
+            if input[n] != 0 {
                 res = Some(n as u8);
                 break;
             }
