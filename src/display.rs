@@ -11,11 +11,12 @@ const BRED: ColorTheme = (255, 0, 0, 0, 0, 0);
 const BGREEN: ColorTheme = (0, 255, 0, 0, 0, 0);
 const BBLUE: ColorTheme = (0, 0, 255, 0, 0, 0);
 const BWHITE: ColorTheme = (255, 255, 255, 0, 0, 0);
+
 pub const DEFAULT_THEME: ColorTheme = BWHITE;
 
 pub const DEFAULT_SCALE: u32 = 10;
 
-pub fn theme_of_str(str: &str) -> Result<ColorTheme, String> {
+pub fn theme_from_str(str: &str) -> Result<ColorTheme, String> {
     let t: ColorTheme = match str {
         "r" => RED,
         "g" => GREEN,
@@ -24,12 +25,12 @@ pub fn theme_of_str(str: &str) -> Result<ColorTheme, String> {
         "bg" => BGREEN,
         "bb" => BBLUE,
         "bw" => BWHITE,
-        _ => return Err(format!("Theme \"{}\" is not knwon.", str))
+        _ => return Err(format!("[theme] \"{}\" is not known. Try \"--help\" or \"-h\" for a list of themes", str))
     };
     Ok(t)
 }
 
-pub fn scale_of_str(str: &str) -> Result<u32, String> {
+pub fn scale_from_str(str: &str) -> Result<u32, String> {
     let mut tmp = str.parse::<u32>().ok();
     
     tmp = match tmp {
@@ -38,7 +39,7 @@ pub fn scale_of_str(str: &str) -> Result<u32, String> {
     };
 
     match tmp {
-        None => Err(format!("SCALE must be an Integer within [1, 100]. You provided \"{}\"", str)),
+        None => Err(format!("[scale] must be an Integer within [1, 100]. You provided \"{}\"", str)),
         Some(s) => Ok(s),
     }
 }

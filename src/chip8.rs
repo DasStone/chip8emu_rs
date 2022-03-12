@@ -8,7 +8,7 @@ use crate::{memory::{Memory}, vmemory::VMemory, timer::Timer, input::InputHandle
 
 pub const DEFAULT_CPU_CLOCK: u64 = 600;
 
-pub fn cpu_clock_from_string(str: &str) -> Result<u64, String> {
+pub fn cpu_clock_from_str(str: &str) -> Result<u64, String> {
     let mut tmp = str.parse::<u64>().ok();
     
     tmp = match tmp {
@@ -17,7 +17,7 @@ pub fn cpu_clock_from_string(str: &str) -> Result<u64, String> {
     };
 
     match tmp {
-        None => Err(format!("CLOCK must be an Integer within [500, 1000]. You provided \"{}\"", str)),
+        None => Err(format!("[clock] must be an Integer within [500, 1000]. You provided \"{}\"", str)),
         Some(s) => Ok(s),
     }
 }

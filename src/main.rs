@@ -1,7 +1,7 @@
-use chip8::{emulate_chip8, Config, cpu_clock_from_string, DEFAULT_CPU_CLOCK};
+use chip8::{emulate_chip8, Config, cpu_clock_from_str, DEFAULT_CPU_CLOCK};
 use clap::{App, Arg};
-use display::{theme_of_str, scale_of_str, DEFAULT_SCALE, DEFAULT_THEME};
-use std::process;
+use display::{theme_from_str, scale_from_str, DEFAULT_SCALE, DEFAULT_THEME};
+use std::{process};
 
 mod chip8;
 mod cpu;
@@ -17,13 +17,25 @@ mod vmemory;
 extern crate clap;
 extern crate sdl2;
 
+fn terminate_with_error<T: std::fmt::Display>(e: T) -> ! {
+    eprintln!("Application error: {}", e);
+    process::exit(1)
+}
+
 fn main() {
     // define CLI
     let matches = App::new("chip8emu_rs")
         .author(crate_authors!())
         .version(crate_version!())
         .about("Chip8 emulator")
-        .after_help("Quit the emulator at any time by pressing ESC. Restart the emultaor by pressing SPACE.")
+        .after_help("Quit the emulator at any time by pressing <ESC>. Restart by pressing <SPACE>.
+Input mapping:
++-+-+-+-+    +-+-+-+-+
+|1|2|3|4|    |1|2|3|C|
+|Q|W|E|R|    |4|5|6|D|
+|A|S|D|F|    |7|8|9|E|
+|Z|X|C|V|    |A|0|B|F|
++-+-+-+-+    +-+-+-+-+")
         .version_short("v")
         .arg(
             Arg::with_name("ROM")
@@ -63,27 +75,24 @@ fn main() {
     let muted = matches.is_present("MUTED");
 
     let scale =  if let Some(ov) = matches.value_of("SCALE") {
-        scale_of_str(ov).unwrap_or_else(|err| {
-            eprintln!("Application error: {}", err);
-            process::exit(1);
+        scale_from_str(ov).unwrap_or_else(|err| {
+            terminate_with_error(err)
         })
     } else {
         DEFAULT_SCALE
     };
 
     let theme = if let Some(ov) = matches.value_of("THEME") {
-        theme_of_str(ov).unwrap_or_else(|err| {
-            eprintln!("Application error: {}", err);
-            process::exit(1);
+        theme_from_str(ov).unwrap_or_else(|err| {
+            terminate_with_error(err)
         })
     } else {
         DEFAULT_THEME
     };
 
     let cpu_clock = if let Some(ov) = matches.value_of("CLOCK") {
-        cpu_clock_from_string(ov).unwrap_or_else(|err| {
-            eprintln!("Application error: {}", err);
-            process::exit(1);
+        cpu_clock_from_str(ov).unwrap_or_else(|err| {
+            terminate_with_error(err)
         })
     } else {
         DEFAULT_CPU_CLOCK
@@ -100,7 +109,6 @@ fn main() {
 
     // start emulator
     if let Err(err) = emulate_chip8(config) {
-        eprintln!("Application error: {}", err);
-        process::exit(1);
+        terminate_with_error(err)
     }
 }
