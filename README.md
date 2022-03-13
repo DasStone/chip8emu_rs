@@ -1,7 +1,7 @@
 # chip8emu_rs
 
 [![GitHub last commit](https://img.shields.io/github/last-commit/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs)
-[![License](https://img.shields.io/github/license/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs/blob/main/LICENSE)
 
 A simple chip8 emulator.
 
@@ -59,12 +59,12 @@ Chip8 test-rom:
 
 ## TODO
 
-1. **Reliability of "beeps"**
+1. **Reliability of "beeps"**\
 The system has usually ca. $\frac{1}{60}sec$ time in order to produce a beep (which is on the edge of being to short for SDL2 to handle). Currently this time is extendend by a simple counter, but this can lead to individual beeps (in quick succession) being mashed together into one long beep (given the emulated cpu runs fast enough).  
-2. **Custom error message on "illegal" instructions**
+2. **Custom error message on "illegal" instructions**\
 The emulator will ```panic``` if an instruction tries to access illegal parts of the emulator (e.g. an out of bounds memory adress). This is in general a non issue when playing games (due to them usually being correct). However I would like to implement a custom error message when this happens in order to help developers trying to create chip8 games using this emulator.
-3. **Better testing**
+3. **Better testing**\
 Currently the system was only tested by running chip8 test-roms and games. Unit tests had been omitted due to the simplicity of many instructions and the monumental task of implementing tests for every part of the system.
 4. **Fullscreen support and dynamic resizing**
-5. **Decouple CPU and TIMER timings**
+5. **Decouple CPU and TIMER timings**\
 The cpu currently is somewhat dependent on the fixed 60Hz of the timers. This means that the cpu cannot run under 60Hz.
