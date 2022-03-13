@@ -3,7 +3,7 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs)
 [![License](https://img.shields.io/github/license/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs/blob/main/LICENSE)
 
-A simple chip8 emulator.
+A simple chip8 emulator using SDL2. Make sure to install [SDL2](https://www.libsdl.org/) for building and running the emulator.
 
 ![Invaders](images/Invaders.PNG)
 ![Pong](images/Pong.PNG)
@@ -16,22 +16,23 @@ Adrian Stein <adrian.stein@tum.de>
 Chip8 emulator
 
 USAGE:
-    chip8emu_rs.exe [FLAGS] [OPTIONS] <ROM> 
+    chip8emu_rs.exe [FLAGS] [OPTIONS] <ROM>
 
 FLAGS:
-    -m, --mute       Mutes emulator audio   
+    -m, --mute       Mutes emulator audio
     -h, --help       Prints help information
     -v, --version    Prints version information
 
 OPTIONS:
-    -c, --clock <CLOCK>    Sets CPU clock speed (in Hz). Valid Range: [500, 1000]. Default is 600.
-    -s, --scale <SCALE>    Scales pixel size. Valid Range: [1, 100]. Default is 10.
-    -t, --theme <THEME>    Color Theme: r, g, b, br, bg, bb, bw. Default is bw.
+    -c, --clock <CLOCK>    Sets CPU clock speed (in Hz). Valid Range: [500, 1000]. Default is 600
+    -s, --scale <SCALE>    Scales pixel size. Valid Range: [1, 100]. Default is 10
+    -t, --theme <THEME>    Color Theme: r, g, b, br, bg, bb, bw. Default is bw
 
 ARGS:
     <ROM>    Filename of the chip8-program
 
-Quit the emulator at any time by pressing <ESC>. Restart by pressing <SPACE>.
+Quit the emulator by pressing <ESC>, restart by pressing <SPACE>
+
 Input mapping:
 Emulator     Chip8
 +-+-+-+-+    +-+-+-+-+
@@ -40,11 +41,50 @@ Emulator     Chip8
 |A|S|D|F|    |7|8|9|E|
 |Z|X|C|V|    |A|0|B|F|
 +-+-+-+-+    +-+-+-+-+
+
+(The US Layout is just a reference. The physical keys are used, not the values they are assigned to)
+```
+
+## Input mapping
+
+The chip8 uses a hexadecimal keypad. The emulator assigns the left half of the keyboard as input for the emulator. The emulator uses scancodes, so only the physical key-layout matters (The US Layout is just used as a reference).
+
+```
+Emulator     Chip8
++-+-+-+-+    +-+-+-+-+
+|1|2|3|4|    |1|2|3|C|
+|Q|W|E|R|    |4|5|6|D|
+|A|S|D|F|    |7|8|9|E|
+|Z|X|C|V|    |A|0|B|F|
++-+-+-+-+    +-+-+-+-+
+
+Special Keys:
+<ESC> quits the emulator
+<SPACE> restarts the emulator
+```
+
+## Installation and Building
+
+Install SDL2 in order to install/build projects using the [sdl2 crate](https://crates.io/crates/sdl2) (Use the setup instructions provided by the sdl2 crate).
+
+### Installation
+
+```
+cargo install chip8emu_rs
+```
+
+### Building
+
+```
+git clone https://github.com/DasStone/chip8emu_rs.git
+cd chip8emu_rs
+cargo build --release
+./target/release/chip8emu_rs --help
 ```
 
 ## Helpfull Resources
 
-I can highly recommend writing an emulator yourself. Chip8 seems to be a good system for people getting into emulation, due to it's simplicity. The following resources might help you.
+I can highly recommend writing an emulator yourself. The Chip8 seems to be a good system for people getting into emulation, due to it's simplicity. The following resources might help you.
 
 Chip8 technical details:
 
