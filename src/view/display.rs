@@ -1,6 +1,5 @@
-use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window, Sdl};
-
 use crate::vmemory::{idx, SCREEN_HEIGHT, SCREEN_WIDTH};
+use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window, Sdl};
 
 pub type ColorTheme = (u8, u8, u8, u8, u8, u8);
 
@@ -25,21 +24,35 @@ pub fn theme_from_str(str: &str) -> Result<ColorTheme, String> {
         "bg" => BGREEN,
         "bb" => BBLUE,
         "bw" => BWHITE,
-        _ => return Err(format!("[theme] \"{}\" is not known. Try \"--help\" or \"-h\" for a list of themes", str))
+        _ => {
+            return Err(format!(
+                "[theme] \"{}\" is not known. Try --help or -h for a list of themes",
+                str
+            ))
+        }
     };
     Ok(t)
 }
 
 pub fn scale_from_str(str: &str) -> Result<u32, String> {
     let mut tmp = str.parse::<u32>().ok();
-    
+
     tmp = match tmp {
         None => None,
-        Some(s) => if s < 1 || s > 100 { None } else { Some(s) }
+        Some(s) => {
+            if s < 1 || s > 100 {
+                None
+            } else {
+                Some(s)
+            }
+        }
     };
 
     match tmp {
-        None => Err(format!("[scale] must be an Integer within [1, 100]. You provided \"{}\"", str)),
+        None => Err(format!(
+            "[scale] must be an Integer within [1, 100]. You provided \"{}\"",
+            str
+        )),
         Some(s) => Ok(s),
     }
 }
@@ -87,7 +100,7 @@ impl DisplayHandler {
                 if buffer[idx(x, y)] != 1 {
                     continue;
                 }
-                
+
                 self.canvas.fill_rect(Rect::new(
                     (x * self.scale as usize) as i32,
                     (y * self.scale as usize) as i32,

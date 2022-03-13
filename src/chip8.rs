@@ -1,27 +1,38 @@
 use std::time::Instant;
 use std::{error::Error, fs, time::Duration};
 
-use crate::display::{DisplayHandler, ColorTheme};
-use crate::rng::RandomByte;
-use crate::sound::SoundHandler;
-use crate::{memory::{Memory}, vmemory::VMemory, timer::Timer, input::InputHandler, cpu::Cpu};
+// sdl components
+use crate::view::display::{ColorTheme, DisplayHandler};
+use crate::view::input::InputHandler;
+use crate::view::sound::SoundHandler;
+
+// emulator components
+use crate::{cpu::Cpu, memory::Memory, timer::Timer, vmemory::VMemory, rng::RandomByte};
 
 pub const DEFAULT_CPU_CLOCK: u64 = 600;
 
 pub fn cpu_clock_from_str(str: &str) -> Result<u64, String> {
     let mut tmp = str.parse::<u64>().ok();
-    
+
     tmp = match tmp {
         None => None,
-        Some(s) => if s < 500 || s > 1000 { None } else { Some(s) }
+        Some(s) => {
+            if s < 500 || s > 1000 {
+                None
+            } else {
+                Some(s)
+            }
+        }
     };
 
     match tmp {
-        None => Err(format!("[clock] must be an Integer within [500, 1000]. You provided \"{}\"", str)),
+        None => Err(format!(
+            "[clock] must be an Integer within [500, 1000]. You provided \"{}\"",
+            str
+        )),
         Some(s) => Ok(s),
     }
 }
-
 
 pub struct Config {
     pub program_filename: String,
@@ -59,7 +70,6 @@ pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
 
         // emulate system
         'emulation: loop {
-
             // start time measurment
             let now = Instant::now();
             let mut elapsed = Duration::from_secs(0);
@@ -84,12 +94,12 @@ pub fn emulate_chip8(config: Config) -> Result<(), Box<dyn Error>> {
 
                 // Quitting takes precedence over restarting
                 if input_event.quit {
-                    break 'running
+                    break 'running;
                 }
 
                 // Reinitialize emulator on restart
                 if input_event.restart {
-                    break 'emulation
+                    break 'emulation;
                 }
 
                 let state = cpu.cycle(&input_event.keypad_state)?;

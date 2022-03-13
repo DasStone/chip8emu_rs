@@ -1,4 +1,4 @@
-use rand::{prelude::ThreadRng, distributions::Uniform, Rng};
+use rand::{distributions::Uniform, prelude::ThreadRng, Rng};
 
 #[derive(Clone, Debug)]
 pub struct RandomByte {

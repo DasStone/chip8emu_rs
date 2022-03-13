@@ -1,6 +1,7 @@
-// https://docs.rs/sdl2/0.30.0/sdl2/audio/index.html
-
-use sdl2::{audio::{AudioDevice, AudioCallback, AudioSpecDesired}, Sdl};
+use sdl2::{
+    audio::{AudioCallback, AudioDevice, AudioSpecDesired},
+    Sdl,
+};
 
 struct SquareWave {
     phase_inc: f32,
@@ -29,19 +30,18 @@ impl SoundHandler {
         let audio_subsystem = sdl_context.audio().unwrap();
 
         let desired_spec = AudioSpecDesired {
-            //freq: Some(44100),
             freq: Some(11025),
             channels: Some(1),
             samples: None,
         };
 
-        let device = audio_subsystem.open_playback(None, &desired_spec, |spec| {
-            SquareWave {
+        let device = audio_subsystem
+            .open_playback(None, &desired_spec, |spec| SquareWave {
                 phase_inc: 440.0 / spec.freq as f32,
                 phase: 0.0,
-                volume: 0.5
-            }
-        }).unwrap();
+                volume: 0.5,
+            })
+            .unwrap();
 
         SoundHandler {
             device: device,

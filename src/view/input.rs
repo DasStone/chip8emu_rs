@@ -1,4 +1,4 @@
-use sdl2::{EventPump, Sdl, keyboard::Scancode, event::Event};
+use sdl2::{event::Event, keyboard::Scancode, EventPump, Sdl};
 
 #[derive(Clone)]
 pub struct InputEvent {

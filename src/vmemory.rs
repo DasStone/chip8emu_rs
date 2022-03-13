@@ -76,13 +76,4 @@ impl VMemory {
 
         vf
     }
-
-    pub fn _debug_print_buffer(&self) {
-        for y in 0..SCREEN_HEIGHT {
-            for x in 0..SCREEN_WIDTH {
-                print!("{}", if self.buffer[idx(x, y)] == 1 { '@' } else { ' ' });
-            }
-            println!("");
-        }
-    }
 }

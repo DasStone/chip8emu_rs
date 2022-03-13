@@ -42,6 +42,7 @@ impl Cpu {
         }
     }
 
+    // cycle @ ca. 600Hz. Somewhere between 500Hz and 1000Hz should be fine
     pub fn cycle<'a>(&'a mut self, input: &[u8]) -> Result<EmulatorState<'a>, String> {
         // fetch, decode and execute instruction
         let op_code = self.fetch();
@@ -56,32 +57,12 @@ impl Cpu {
         };
 
         // return emulator state
-        Ok(EmulatorState {
-            draw: draw,
-        })
+        Ok(EmulatorState { draw: draw })
     }
 
+    // cycle @ 60Hz.
     pub fn update_timers(&mut self) -> bool {
         self.timer.update()
-    }
-
-    pub fn _debug_print(&mut self, print_vmemory: bool, print_memory: bool) {
-        println!("--------- CPU Info ---------");
-        println!(
-            "+ Special Registers:\nI: {}\npc: {}\nDelay Timer: {}\nSound Timer: {}",
-            self.i, self.pc, self.timer.delay_timer, self.timer.sound_timer
-        );
-        println!("+ Stack:\nsp: {}\nstack: {:?}", self.pc, self.stack);
-        println!("+ GP Registers:\n{:?}", self.v);
-        if print_vmemory {
-            println!("------- Video Memory -------");
-            self.vmemory._debug_print_buffer();
-        }
-        if print_memory {
-            println!("---------- Memory ----------");
-            println!("{:?}", self.memory);
-        }
-        println!("----------------------------");
     }
 
     fn fetch(&mut self) -> u16 {
@@ -274,7 +255,9 @@ impl Cpu {
     fn op_dxyn(&mut self, x: usize, y: usize, n: u8) {
         let start = self.i as usize;
         let end = start + (n as usize);
-        self.v[0xF] = self.vmemory.draw_sprite_no_wrap(self.v[x], self.v[y], &self.memory.mem[start .. end]);
+        self.v[0xF] =
+            self.vmemory
+                .draw_sprite_no_wrap(self.v[x], self.v[y], &self.memory.mem[start..end]);
     }
 
     fn op_ex9e(&mut self, x: usize, input: &[u8]) {

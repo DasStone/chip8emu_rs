@@ -18,7 +18,7 @@ const FONT_SET: [u8; 80] = [
     0xF0, 0x80, 0x80, 0x80, 0xF0, // C
     0xE0, 0x90, 0x90, 0x90, 0xE0, // D
     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-    0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+    0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 ];
 
 #[derive(Clone, Debug)]
@@ -27,27 +27,25 @@ pub struct Memory {
 }
 
 impl Memory {
-    pub fn new(program: &Vec<u8>) -> Result<Memory, &'static str>{
+    pub fn new(program: &Vec<u8>) -> Result<Memory, &'static str> {
         let mut tmp = vec![0u8; MEMORY_SIZE].into_boxed_slice();
 
         load_fontset(&mut tmp);
         load_program(&mut tmp, program)?;
 
-        Ok(Memory {
-            mem: tmp,
-        })
+        Ok(Memory { mem: tmp })
     }
 }
 
 fn load_fontset(mem: &mut Box<[u8]>) {
-    mem[FONTSET_ADDRESS..(FONTSET_ADDRESS+80)].copy_from_slice(&FONT_SET);
+    mem[FONTSET_ADDRESS..(FONTSET_ADDRESS + 80)].copy_from_slice(&FONT_SET);
 }
 
 fn load_program(mem: &mut Box<[u8]>, program: &Vec<u8>) -> Result<(), &'static str> {
     let last_address = PROGRAM_START + program.len();
 
     if last_address >= MEMORY_SIZE {
-        return Err("Program cannot be stored");
+        return Err("Program cannot be stored in emulated RAM");
     }
 
     mem[PROGRAM_START..last_address].copy_from_slice(program);
