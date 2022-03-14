@@ -1,7 +1,7 @@
 # chip8emu_rs
 
 [![GitHub last commit](https://img.shields.io/github/last-commit/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs)
-[![License](https://img.shields.io/github/license/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs/main/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 A simple chip8 emulator using SDL2.
 
