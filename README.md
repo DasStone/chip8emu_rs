@@ -1,9 +1,9 @@
 # chip8emu_rs
 
 [![GitHub last commit](https://img.shields.io/github/last-commit/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs)
-[![License](https://img.shields.io/github/license/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs/main/LICENSE)
 
-A simple chip8 emulator using SDL2. Make sure to install [SDL2](https://www.libsdl.org/) for building and running the emulator.
+A simple chip8 emulator using SDL2.
 
 ![Invaders](images/Invaders.PNG)
 ![Pong](images/Pong.PNG)
@@ -24,9 +24,9 @@ FLAGS:
     -v, --version    Prints version information
 
 OPTIONS:
-    -c, --clock <CLOCK>    Sets CPU clock speed (in Hz). Valid Range: [500, 1000]. Default is 600
-    -s, --scale <SCALE>    Scales pixel size. Valid Range: [1, 100]. Default is 10
-    -t, --theme <THEME>    Color Theme: r, g, b, br, bg, bb, bw. Default is bw
+    -c, --clock <CLOCK>    Sets CPU clock speed (in Hz). Valid range: [300, 1000]. Default is 600
+    -s, --scale <SCALE>    Scales pixel size. Valid range: [1, 100]. Default is 10
+    -t, --theme <THEME>    Color theme: r, g, b, br, bg, bb, bw. Default is bw
 
 ARGS:
     <ROM>    Filename of the chip8-program
@@ -42,12 +42,12 @@ Emulator     Chip8
 |Z|X|C|V|    |A|0|B|F|
 +-+-+-+-+    +-+-+-+-+
 
-(The US Layout is just a reference. The physical keys are used, not the values they are assigned to)
+(The US Layout is a reference. The physical keys are used, not the values they are assigned to)
 ```
 
 ## Input mapping
 
-The chip8 uses a hexadecimal keypad. The emulator assigns the left half of the keyboard as input for the emulator. The emulator uses scancodes, so only the physical key-layout matters (The US Layout is just used as a reference).
+The chip8 uses a hexadecimal keypad. The emulator assigns the left half of the keyboard as input for the emulator. The emulator uses scancodes, so only the physical key-layout matters (The US Layout is used as a reference).
 
 ```
 Emulator     Chip8
@@ -82,9 +82,19 @@ cargo build --release
 ./target/release/chip8emu_rs --help
 ```
 
+## Usage
+
+Just provide a game file for the emulator:
+
+```
+chip8emu_rs game.ch8
+```
+
+Most roms you find will either end with ```ch8``` or ```c8```. The emulator does not actually care what the file ending is, it will just try to fit whatever file you provide into the emulated ram and then try running it.
+
 ## Helpfull Resources
 
-I can highly recommend writing an emulator yourself. The Chip8 seems to be a good system for people getting into emulation, due to it's simplicity. The following resources might help you.
+I can highly recommend writing an emulator yourself. The Chip8 seems to be a good system for people getting into emulation, due to its simplicity. The following resources might help you.
 
 Chip8 technical details:
 
@@ -95,16 +105,16 @@ Chip8 test-rom:
 
 - [Chip8 test rom by corax89](https://github.com/corax89/chip8-test-rom)
 
-(You will be able to find many more ressources (test-roms, games, documentation, etc.) by simply searching online (github, wikipedia, blogs, etc.))
+You will be able to find more resources (test-roms, games, documentation, etc.) by simply searching online (GitHub, Wikipedia, blogs, etc.).
 
 ## TODO
 
 1. **Reliability of "beeps"**\
-The system has usually ca. $\frac{1}{60}sec$ time in order to produce a beep (which is on the edge of being to short for SDL2 to handle). Currently this time is extendend by a simple counter, but this can lead to individual beeps (in quick succession) being mashed together into one long beep (given the emulated cpu runs fast enough).  
+The system usually has ca. 1/60 sec time to produce a beep (which is on the edge of being too short for SDL2 to manage). A simple counter extends this time, but this can lead to individual beeps (in quick succession) sounding like one long beep (given the emulated cpu runs fast enough). 
 2. **Custom error message on "illegal" instructions**\
-The emulator will ```panic``` if an instruction tries to access illegal parts of the emulator (e.g. an out of bounds memory adress). This is in general a non issue when playing games (due to them usually being correct). However I would like to implement a custom error message when this happens in order to help developers trying to create chip8 games using this emulator.
+The emulator will ```panic``` if an instruction tries to access illegal parts of the emulator (e.g., an out of bounds memory address). This is in general a non-issue when playing games (due to them usually being correct). However, I would like to implement a custom error message when this happens to help developers trying to create chip8 games using this emulator.
 3. **Better testing**\
-Currently the system was only tested by running chip8 test-roms and games. Unit tests had been omitted due to the simplicity of many instructions and the monumental task of implementing tests for every part of the system.
+The system was only tested by running chip8 test-roms and games. There are currently no unit tests.
 4. **Fullscreen support and dynamic resizing**
 5. **Decouple CPU and TIMER timings**\
-The cpu currently is somewhat dependent on the fixed 60Hz of the timers. This means that the cpu cannot run under 60Hz.
+The cpu's timings are dependent on the fixed 60Hz of the timers.

@@ -17,7 +17,7 @@ pub fn cpu_clock_from_str(str: &str) -> Result<u64, String> {
     tmp = match tmp {
         None => None,
         Some(s) => {
-            if s < 500 || s > 1000 {
+            if s < 300 || s > 1000 {
                 None
             } else {
                 Some(s)
@@ -27,7 +27,7 @@ pub fn cpu_clock_from_str(str: &str) -> Result<u64, String> {
 
     match tmp {
         None => Err(format!(
-            "[clock] must be an Integer within [500, 1000]. You provided \"{}\"",
+            "[clock] must be an Integer within [300, 1000]. You provided \"{}\"",
             str
         )),
         Some(s) => Ok(s),

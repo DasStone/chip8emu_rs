@@ -41,7 +41,7 @@ Emulator     Chip8
 |Z|X|C|V|    |A|0|B|F|
 +-+-+-+-+    +-+-+-+-+
 
-(The US Layout is just a reference. The physical keys are used, not the values they are assigned to)")
+(The US Layout is a reference. The physical keys are used, not the values they are assigned to)")
         .version_short("v")
         .arg(
             Arg::with_name("ROM")
@@ -58,19 +58,19 @@ Emulator     Chip8
             Arg::with_name("THEME")
                 .short("t")
                 .long("theme")
-                .help("Color Theme: r, g, b, br, bg, bb, bw. Default is bw")
+                .help("Color theme: r, g, b, br, bg, bb, bw. Default is bw")
                 .takes_value(true),
         )
         .arg(Arg::with_name("SCALE")
                 .short("s")
                 .long("scale")
-                .help("Scales pixel size. Valid Range: [1, 100]. Default is 10")
+                .help("Scales pixel size. Valid range: [1, 100]. Default is 10")
                 .takes_value(true)
         )
         .arg(Arg::with_name("CLOCK")
                 .short("c")
                 .long("clock")
-                .help("Sets CPU clock speed (in Hz). Valid Range: [500, 1000]. Default is 600")
+                .help("Sets CPU clock speed (in Hz). Valid range: [300, 1000]. Default is 600")
                 .takes_value(true)
         )
         .get_matches();
