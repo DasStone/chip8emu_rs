@@ -5,13 +5,13 @@
 
 A simple chip8 emulator using SDL2.
 
-![Invaders](images/Invaders.PNG)
-![Pong](images/Pong.PNG)
+![Invaders](https://github.com/DasStone/chip8emu_rs/raw/main/images/Invaders.PNG)
+![Pong](https://github.com/DasStone/chip8emu_rs/raw/main/images/Pong.PNG)
 
 ## Help
 
 ```
-chip8emu_rs 0.1.0
+chip8emu_rs 0.1.1
 Adrian Stein <adrian.stein@tum.de>
 Chip8 emulator
 
@@ -32,7 +32,6 @@ ARGS:
     <ROM>    Filename of the chip8-program
 
 Quit the emulator by pressing <ESC>, restart by pressing <SPACE>
-
 Input mapping:
 Emulator     Chip8
 +-+-+-+-+    +-+-+-+-+
@@ -92,7 +91,7 @@ chip8emu_rs game.ch8
 
 Most roms you find will either end with ```ch8``` or ```c8```. The emulator does not actually care what the file ending is, it will just try to fit whatever file you provide into the emulated ram and then try running it.
 
-## Helpfull Resources
+## Helpful Resources
 
 I can highly recommend writing an emulator yourself. The Chip8 seems to be a good system for people getting into emulation, due to its simplicity. The following resources might help you.
 

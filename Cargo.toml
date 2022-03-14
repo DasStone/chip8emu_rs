@@ -1,6 +1,6 @@
 [package]
 name = "chip8emu_rs"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Adrian Stein <adrian.stein@tum.de>"]
 edition = "2018"
 description = "Chip8 emulator"
@@ -9,6 +9,9 @@ readme = "README.md"
 repository = "https://github.com/DasStone/chip8emu_rs"
 keywords = ["chip8", "emulator", "emulation"]
 categories = ["command-line-utilities"]
+exclude = [
+    "images/*",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
