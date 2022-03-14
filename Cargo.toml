@@ -11,6 +11,7 @@ keywords = ["chip8", "emulator", "emulation"]
 categories = ["command-line-utilities"]
 exclude = [
     "images/*",
+    "SDL2.dll"
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
