@@ -1,7 +1,8 @@
 # chip8emu_rs
 
+[![Crates.io](https://img.shields.io/crates/v/chip8emu_rs)](https://crates.io/crates/chip8emu_rs)
 [![GitHub last commit](https://img.shields.io/github/last-commit/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/github/license/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs/blob/main/LICENSE)
 
 A simple chip8 emulator using SDL2.
 
