@@ -4,7 +4,7 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs)
 [![License](https://img.shields.io/github/license/DasStone/chip8emu_rs)](https://github.com/DasStone/chip8emu_rs/blob/main/LICENSE)
 
-A simple chip8 emulator using SDL2.
+A simple multiplatform chip8 emulator using SDL2.
 
 ![Invaders](https://github.com/DasStone/chip8emu_rs/raw/main/images/Invaders.PNG)
 ![Pong](https://github.com/DasStone/chip8emu_rs/raw/main/images/Pong.PNG)
@@ -66,6 +66,9 @@ Special Keys:
 ## Installation and Building
 
 Install SDL2 in order to install/build projects using the [sdl2 crate](https://crates.io/crates/sdl2) (Use the setup instructions provided by the sdl2 crate).
+
+Note:
+Windows users need to make sure that they also have the ```SDL2.dll``` file. Otherwise the emulator won't launch. This is not the case for other operating systems like MacOS. The sdl2 crate explains this in further detail.
 
 ### Installation
 
