@@ -12,25 +12,12 @@ use crate::{cpu::Cpu, memory::Memory, timer::Timer, vmemory::VMemory, rng::Rando
 pub const DEFAULT_CPU_CLOCK: u64 = 600;
 
 pub fn cpu_clock_from_str(str: &str) -> Result<u64, String> {
-    let mut tmp = str.parse::<u64>().ok();
-
-    tmp = match tmp {
-        None => None,
-        Some(s) => {
-            if s < 300 || s > 1000 {
-                None
-            } else {
-                Some(s)
-            }
-        }
-    };
-
-    match tmp {
-        None => Err(format!(
+    match str.parse::<u64>().ok() {
+        Some(s @ 300..=1000) => Ok(s),
+        _ => Err(format!(
             "[clock] must be an Integer within [300, 1000]. You provided \"{}\"",
             str
         )),
-        Some(s) => Ok(s),
     }
 }
 

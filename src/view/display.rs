@@ -35,25 +35,12 @@ pub fn theme_from_str(str: &str) -> Result<ColorTheme, String> {
 }
 
 pub fn scale_from_str(str: &str) -> Result<u32, String> {
-    let mut tmp = str.parse::<u32>().ok();
-
-    tmp = match tmp {
-        None => None,
-        Some(s) => {
-            if s < 1 || s > 100 {
-                None
-            } else {
-                Some(s)
-            }
-        }
-    };
-
-    match tmp {
-        None => Err(format!(
+    match str.parse::<u32>().ok() {
+        Some(s @ 1..=100) => Ok(s),
+        _ => Err(format!(
             "[scale] must be an Integer within [1, 100]. You provided \"{}\"",
             str
         )),
-        Some(s) => Ok(s),
     }
 }
 
